@@ -1,0 +1,176 @@
+{
+  "alerts": {},
+  "date": "2026-11-18",
+  "events": [
+    {
+      "away": "Portugal",
+      "channels": [
+        "Arena sport Premium 1"
+      ],
+      "competition": "Liga nacija",
+      "home": "Vels",
+      "id": "286789493332",
+      "reasons": [
+        "Liga nacija"
+      ],
+      "start": "2026-11-18T06:00:00+01:00",
+      "title": "Fudbal - Liga nacija: Vels - Portugal"
+    },
+    {
+      "away": "Holandija",
+      "channels": [
+        "Arena sport Premium 3"
+      ],
+      "competition": "Liga nacija",
+      "home": "Nemačka",
+      "id": "942ff7be3710",
+      "reasons": [
+        "Liga nacija"
+      ],
+      "start": "2026-11-18T06:30:00+01:00",
+      "title": "Fudbal - Liga nacija: Nemačka - Holandija"
+    },
+    {
+      "away": "Lille",
+      "channels": [
+        "Arena sport 4"
+      ],
+      "competition": "Liga šampiona",
+      "home": "Bodo/Glimt",
+      "id": "f9b327244528",
+      "reasons": [
+        "Liga šampiona"
+      ],
+      "start": "2026-11-18T08:00:00+01:00",
+      "title": "Fudbal - Liga šampiona: Bodo/Glimt - Lille"
+    },
+    {
+      "away": "Norveška",
+      "channels": [
+        "Arena sport Premium 1"
+      ],
+      "competition": "Liga nacija",
+      "home": "Danska",
+      "id": "5820f7f2c1b2",
+      "reasons": [
+        "Liga nacija"
+      ],
+      "start": "2026-11-18T08:00:00+01:00",
+      "title": "Fudbal - Liga nacija: Danska - Norveška"
+    },
+    {
+      "away": "Srbija",
+      "channels": [
+        "Arena sport Premium 3"
+      ],
+      "competition": "Liga nacija",
+      "home": "Grčka",
+      "id": "e8def00249c0",
+      "reasons": [
+        "Liga nacija",
+        "Reprezentacija Srbije"
+      ],
+      "start": "2026-11-18T08:30:00+01:00",
+      "title": "Fudbal - Liga nacija: Grčka - Srbija"
+    },
+    {
+      "away": "Club Brugge",
+      "channels": [
+        "Arena sport 4"
+      ],
+      "competition": "Liga šampiona",
+      "home": "PSV",
+      "id": "773f2ffa0aef",
+      "reasons": [
+        "Liga šampiona"
+      ],
+      "start": "2026-11-18T10:00:00+01:00",
+      "title": "Fudbal - Liga šampiona: PSV - Club Brugge"
+    },
+    {
+      "away": "Švedska",
+      "channels": [
+        "Arena sport Premium 3"
+      ],
+      "competition": "Liga nacija",
+      "home": "Poljska",
+      "id": "d10fcaf0d1b4",
+      "reasons": [
+        "Liga nacija"
+      ],
+      "start": "2026-11-18T11:00:00+01:00",
+      "title": "Fudbal - Liga nacija: Poljska - Švedska"
+    },
+    {
+      "away": "Real Madrid",
+      "channels": [
+        "Arena sport 4"
+      ],
+      "competition": "Liga šampiona",
+      "home": "AEK",
+      "id": "34fdcad011f4",
+      "reasons": [
+        "Liga šampiona"
+      ],
+      "start": "2026-11-18T12:00:00+01:00",
+      "title": "Fudbal - Liga šampiona: AEK - Real Madrid"
+    },
+    {
+      "away": "Severna Irska",
+      "channels": [
+        "Arena sport Premium 3"
+      ],
+      "competition": "Liga nacija",
+      "home": "Mađarska",
+      "id": "526157a8dd7d",
+      "reasons": [
+        "Liga nacija"
+      ],
+      "start": "2026-11-18T13:00:00+01:00",
+      "title": "Fudbal - Liga nacija: Mađarska - Severna Irska"
+    },
+    {
+      "away": "Roma",
+      "channels": [
+        "Arena sport 4"
+      ],
+      "competition": "Liga šampiona",
+      "home": "Manchester United",
+      "id": "94e688f8ff1a",
+      "reasons": [
+        "Liga šampiona"
+      ],
+      "start": "2026-11-18T16:00:00+01:00",
+      "title": "Fudbal - Liga šampiona: Manchester United - Roma"
+    },
+    {
+      "away": "Sporting",
+      "channels": [
+        "Arena sport 4"
+      ],
+      "competition": "Liga šampiona",
+      "home": "Shakhtar",
+      "id": "fca414b7630d",
+      "reasons": [
+        "Liga šampiona"
+      ],
+      "start": "2026-11-19T04:00:00+01:00",
+      "title": "Fudbal - Liga šampiona: Shakhtar - Sporting"
+    }
+  ],
+  "fetched_at": "2026-11-18T20:37:33.095163+01:00",
+  "notified": {},
+  "seen": {
+    "fudbal liga nacija danska norveska": "2026-11-18",
+    "fudbal liga nacija grcka srbija": "2026-11-18",
+    "fudbal liga nacija madjarska severna irska": "2026-11-18",
+    "fudbal liga nacija nemacka holandija": "2026-11-18",
+    "fudbal liga nacija poljska svedska": "2026-11-18",
+    "fudbal liga nacija vels portugal": "2026-11-18",
+    "fudbal liga sampiona aek real madrid": "2026-11-18",
+    "fudbal liga sampiona bodo glimt lille": "2026-11-18",
+    "fudbal liga sampiona manchester united roma": "2026-11-18",
+    "fudbal liga sampiona psv club brugge": "2026-11-18",
+    "fudbal liga sampiona shakhtar sporting": "2026-11-18"
+  }
+}
