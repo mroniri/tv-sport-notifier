@@ -43,7 +43,7 @@
   "live_window": {
     "from": "15:00",
     "weekend_from": "12:00",
-    "to": "23:59"
+    "to": "22:00"
   },
   "serbia_team": "Srbija",
   "include_serbia_youth": true,
