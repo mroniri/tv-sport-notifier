@@ -1,0 +1,267 @@
+{
+  "urls": [
+    "https://naslovi.net/tv-program/sport/"
+  ],
+  "lead_minutes": 60,
+  "early_tolerance_minutes": 7,
+  "min_minutes_before": 3,
+  "refresh_hours": 6,
+  "priority": 4,
+  "allowed_channels": [
+    "Arena 1x2",
+    "Arena Sport 1",
+    "Arena Sport 2",
+    "Arena Sport 3",
+    "Arena Sport 4",
+    "Arena Sport 5",
+    "Arena Sport 6",
+    "Arena Sport 7",
+    "Arena Sport 8",
+    "Arena Sport 9",
+    "Arena Sport 10",
+    "Arena Premium 1",
+    "Arena Premium 2",
+    "Arena Premium 3",
+    "Arena Premium 4",
+    "Arena Premium 5",
+    "Eurosport 1 HD",
+    "Eurosport 2 HD",
+    "Eurosport 4K",
+    "Premier League TV",
+    "M4 Sport HD",
+    "RTS 1 HD",
+    "RTS 2 HD",
+    "RTS 3 HD",
+    "Prva",
+    "Pink",
+    "B92",
+    "Happy TV",
+    "Nova S HD"
+  ],
+  "exclude_women": true,
+  "rerun_memory_days": 3,
+  "serbia_team": "Srbija",
+  "include_serbia_youth": true,
+  "rules": {
+    "champions_league": {
+      "include": [
+        "liga sampiona"
+      ],
+      "exclude": [
+        "azij",
+        "afric",
+        "caf",
+        "concacaf",
+        "ofc",
+        "konmebol",
+        "arap",
+        "kvalifik"
+      ]
+    },
+    "nations_league": {
+      "include": [
+        "liga nacija"
+      ],
+      "exclude": []
+    },
+    "championships": {
+      "include": [
+        "svetsko prvenstvo",
+        "evropsko prvenstvo",
+        "mundijal",
+        "euro 20",
+        "uefa euro"
+      ],
+      "exclude": [
+        "kvalifik",
+        "klupsk",
+        "klubov"
+      ]
+    },
+    "qualifiers": {
+      "include": [
+        "svetsko prvenstvo",
+        "evropsko prvenstvo",
+        "mundijal",
+        "euro 20",
+        "uefa euro"
+      ],
+      "exclude": [
+        "klupsk",
+        "klubov"
+      ],
+      "teams": [
+        "Nemačka",
+        "Italija",
+        "Španija",
+        "Francuska",
+        "Engleska",
+        "Holandija",
+        "Portugal",
+        "Portugalija",
+        "Belgija",
+        "Hrvatska"
+      ]
+    }
+  },
+  "not_live_keywords": [
+    "pregled",
+    "magazin",
+    "najbolj",
+    "sazetak",
+    "rezime",
+    "highlights",
+    "klasic",
+    "rewind",
+    "arhiv",
+    "snimak",
+    "snimljen",
+    "repriz",
+    "ponov",
+    "delayed",
+    "recorded",
+    "analiza",
+    "best of",
+    "specijal",
+    "goals of"
+  ],
+  "derbies": [
+    {
+      "country": "Engleska",
+      "competitions": [
+        "Engleska liga",
+        "Premijer liga",
+        "Premier League"
+      ],
+      "pairs": [
+        [
+          "Manchester United|Man United|Man Utd",
+          "Manchester City|Man City"
+        ],
+        [
+          "Liverpool",
+          "Everton"
+        ],
+        [
+          "Liverpool",
+          "Manchester United|Man United|Man Utd"
+        ],
+        [
+          "Arsenal",
+          "Tottenham|Tottenham Hotspur"
+        ],
+        [
+          "Arsenal",
+          "Chelsea"
+        ],
+        [
+          "Chelsea",
+          "Tottenham|Tottenham Hotspur"
+        ],
+        [
+          "Chelsea",
+          "Fulham"
+        ],
+        [
+          "Chelsea",
+          "West Ham|West Ham United"
+        ],
+        [
+          "West Ham|West Ham United",
+          "Tottenham|Tottenham Hotspur"
+        ],
+        [
+          "Newcastle|Newcastle United",
+          "Sunderland"
+        ],
+        [
+          "Leeds|Leeds United",
+          "Manchester United|Man United|Man Utd"
+        ],
+        [
+          "Crystal Palace",
+          "Brighton"
+        ]
+      ]
+    },
+    {
+      "country": "Španija",
+      "competitions": [
+        "Španska liga",
+        "La Liga",
+        "Primera"
+      ],
+      "pairs": [
+        [
+          "Real Madrid",
+          "Barcelona|FC Barcelona|Barca"
+        ],
+        [
+          "Real Madrid",
+          "Atletico Madrid|Atletiko Madrid|Atletico|Atletiko"
+        ],
+        [
+          "Barcelona|FC Barcelona|Barca",
+          "Espanyol"
+        ],
+        [
+          "Sevilla",
+          "Real Betis|Betis"
+        ],
+        [
+          "Athletic Bilbao|Athletic Club|Atletik Bilbao",
+          "Real Sociedad"
+        ],
+        [
+          "Valencia",
+          "Levante"
+        ]
+      ]
+    },
+    {
+      "country": "Italija",
+      "competitions": [
+        "Italijanska liga",
+        "Serija A",
+        "Serie A"
+      ],
+      "pairs": [
+        [
+          "Inter|Internazionale|Inter Milan",
+          "Milan|AC Milan"
+        ],
+        [
+          "Roma|AS Roma",
+          "Lazio"
+        ],
+        [
+          "Juventus|Juve",
+          "Torino"
+        ],
+        [
+          "Juventus|Juve",
+          "Inter|Internazionale|Inter Milan"
+        ],
+        [
+          "Genoa",
+          "Sampdoria"
+        ]
+      ]
+    },
+    {
+      "country": "Srbija",
+      "competitions": [
+        "Mozzart Bet Superliga",
+        "Superliga Srbije",
+        "Super liga Srbije",
+        "Superliga"
+      ],
+      "pairs": [
+        [
+          "Crvena zvezda|Zvezda|Crvena zvezda Beograd",
+          "Partizan"
+        ]
+      ]
+    }
+  ]
+}
