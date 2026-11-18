@@ -40,6 +40,11 @@
   ],
   "exclude_women": true,
   "rerun_memory_days": 3,
+  "live_window": {
+    "from": "15:00",
+    "weekend_from": "12:00",
+    "to": "23:59"
+  },
   "serbia_team": "Srbija",
   "include_serbia_youth": true,
   "rules": {

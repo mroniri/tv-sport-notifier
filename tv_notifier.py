@@ -293,12 +293,23 @@ def classify(fb: FootballMatch, raw_title: str, cfg: dict) -> list[str]:
     return reasons
 
 
+def in_live_window(start: datetime, cfg: dict) -> bool:
+    """Prenosi uživo su samo u okviru live_window; sve van njega su reprize."""
+    w = cfg.get("live_window")
+    if not w:
+        return True
+    begin = w["weekend_from"] if start.weekday() >= 5 and w.get("weekend_from") else w["from"]
+    return time.fromisoformat(begin) <= start.time() <= time.fromisoformat(w["to"])
+
+
 def select_matches(events: list[Event], cfg: dict) -> list[dict]:
     """Filtrira i spaja iste utakmice sa više kanala / reprize u jednu stavku."""
     allowed = {channel_key(c) for c in cfg.get("allowed_channels", [])}
     groups: dict[str, list[tuple[Event, FootballMatch, list[str]]]] = {}
     for ev in events:
         if allowed and channel_key(ev.channel) not in allowed:
+            continue
+        if not in_live_window(ev.start, cfg):
             continue
         fb = parse_football(ev.title)
         if fb is None:
