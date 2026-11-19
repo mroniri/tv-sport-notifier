@@ -276,8 +276,41 @@ COUNTRIES_SR_EN = {
 GENERIC_TOKENS = {
     "fc", "cf", "ac", "as", "sc", "afc", "fk", "sk", "if", "bk", "united", "city", "club", "real",
     "sporting", "athletic", "inter", "the", "de", "la", "del", "of", "and", "dynamo", "dinamo",
-    "olympique", "olympiakos", "sport", "town", "county", "rovers", "wanderers",
+    "olympique", "olympiakos", "sport", "town", "county", "rovers", "wanderers", "utd", "siti", "junajted", "milan", "milano",
 }
+
+
+# Grupe istih klubova (srpski nazivi sa TV-a i nazivi sa stranih sajtova)
+CLUB_ALIASES = [
+    "crvena zvezda|zvezda|crvena zvezda beograd|red star belgrade|red star|crvena zvezda belgrade|fk crvena zvezda",
+    "partizan|partizan beograd|partizan belgrade|fk partizan",
+    "vojvodina|vojvodina novi sad|fk vojvodina|vojvodina novi sad",
+    "bajern|bajern minhen|bayern|bayern munich|bayern munchen",
+    "mancester junajted|manchester united|man united|man utd",
+    "mancester siti|manchester city|man city",
+    "atletiko madrid|atletiko|atletico madrid|atletico",
+    "borusija dortmund|borussia dortmund|dortmund",
+    "pari sen žermen|pari sen zermen|psg|paris saint germain|paris saint-germain",
+    "inter|internazionale|inter milan|inter milano",
+    "juventus|juve",
+    "ajaks|ajax|ajax amsterdam",
+    "benfika|benfica|sl benfica",
+    "porto|fc porto",
+    "olimpijakos|olympiacos|olympiakos",
+    "galatasaraj|galatasaray",
+    "slavija prag|slavia prague|slavia praha",
+    "sparta prag|sparta prague|sparta praha",
+    "bodo glimt|bodo/glimt|bodoe glimt",
+    "lask|lask linz",
+    "aek atina|aek athens|aek",
+    "kobenhavn|fc copenhagen|copenhagen|fc kobenhavn",
+]
+_ALIAS_INDEX: dict[str, set[str]] = {}
+for _g in CLUB_ALIASES:
+    _vs = {norm(x) for x in _g.split("|")}
+    _vs |= {club_key(x) for x in _g.split("|")}
+    for _v in _vs:
+        _ALIAS_INDEX.setdefault(_v, set()).update(_vs)
 
 
 def _name_variants(name: str) -> set[str]:
@@ -286,6 +319,8 @@ def _name_variants(name: str) -> set[str]:
     for alt in COUNTRIES_SR_EN.get(base, "").split("|"):
         if alt:
             variants.add(norm(alt))
+    for v in list(variants):
+        variants |= _ALIAS_INDEX.get(v, set())
     return {v for v in variants if v}
 
 
@@ -461,7 +496,7 @@ def get_fixtures(cfg: dict, today: date, http=http_json) -> tuple[list[Fixture],
             except Exception as exc:  # noqa: BLE001
                 errors.append(f"{spec}: {exc}")
         else:
-            failed[comp["name"]] = "; ".join(errors)
+            failed[comp["name"] + (" (opciono)" if comp.get("optional") else "")] = "; ".join(errors)
             continue
         n = comp.get("top_n")
         if n:
@@ -775,11 +810,11 @@ def run(
     if _needs_refresh(state, today, now, cfg, force_refresh):
         fixtures, failed = get_fixtures(cfg, today, http_fn)
         for name, err in failed.items():
-            if name.endswith("(tabela)"):
-                log(f"Tabela nije dostupna: {name}: {err}")
+            if name.endswith(("(tabela)", "(opciono)")):
+                log(f"Izvor nije dostupan (nije kritično): {name}: {err}")
         # greška pri čitanju tabele ne smatra se greškom rasporeda (samo se ne primenjuje pravilo top 4)
-        failed = {k: v for k, v in failed.items() if not k.endswith("(tabela)")}
-        all_failed = {c["name"] for c in cfg["competitions"]} <= set(failed)
+        failed = {k: v for k, v in failed.items() if not k.endswith(("(tabela)", "(opciono)"))}
+        all_failed = {c["name"] for c in cfg["competitions"] if not c.get("optional")} <= set(failed)
         for name, err in failed.items():
             log(f"Izvor nije dostupan: {name}: {err}")
         have_cache = state["date"] == today.isoformat()

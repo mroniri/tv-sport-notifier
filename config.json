@@ -192,8 +192,8 @@
       ],
       "pairs": [
         [
-          "Crvena zvezda|Zvezda|Crvena zvezda Beograd",
-          "Partizan"
+          "Crvena zvezda|Zvezda|Crvena zvezda Beograd|Red Star Belgrade|Red Star|Crvena Zvezda Belgrade",
+          "Partizan|Partizan Beograd|Partizan Belgrade"
         ]
       ]
     }
@@ -324,12 +324,15 @@
       "kind": "derby",
       "country": "Srbija",
       "sources": [
-        "espn:srb.1"
+        "espn:srb.1",
+        "espn:ser.1",
+        "espn:srb.superliga"
       ],
       "tv_keywords": [
         "superliga"
       ],
-      "top_n": 4
+      "top_n": 4,
+      "optional": true
     }
   ]
 }
