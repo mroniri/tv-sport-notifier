@@ -1,38 +1,12 @@
 {
-  "alerts": {},
+  "alerts": {
+    "partial": "2026-11-19"
+  },
   "date": "2026-11-19",
-  "events": [
-    {
-      "away": "Inter",
-      "channels": [
-        "Arena sport 4"
-      ],
-      "competition": "Liga šampiona",
-      "home": "Feyenoord",
-      "id": "6715722d34be",
-      "reasons": [
-        "Liga šampiona"
-      ],
-      "start": "2026-11-19T17:00:00+01:00",
-      "title": "Fudbal - Liga šampiona: Feyenoord - Inter"
-    }
-  ],
-  "fetched_at": "2026-11-19T19:50:15.351524+01:00",
+  "events": [],
+  "fetched_at": null,
   "notified": {
     "6715722d34be": "2026-11-19T17:00:00+01:00"
   },
-  "seen": {
-    "fudbal liga nacija danska norveska": "2026-11-18",
-    "fudbal liga nacija grcka srbija": "2026-11-18",
-    "fudbal liga nacija madjarska severna irska": "2026-11-18",
-    "fudbal liga nacija nemacka holandija": "2026-11-18",
-    "fudbal liga nacija poljska svedska": "2026-11-18",
-    "fudbal liga nacija vels portugal": "2026-11-18",
-    "fudbal liga sampiona aek real madrid": "2026-11-18",
-    "fudbal liga sampiona bodo glimt lille": "2026-11-18",
-    "fudbal liga sampiona feyenoord inter": "2026-11-19",
-    "fudbal liga sampiona manchester united roma": "2026-11-18",
-    "fudbal liga sampiona psv club brugge": "2026-11-18",
-    "fudbal liga sampiona shakhtar sporting": "2026-11-18"
-  }
+  "version": 2
 }

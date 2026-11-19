@@ -1,0 +1,38 @@
+Provera izvora, 19.11.2026 21:19, dani 2026-11-19 - 2026-11-25
+
+[OK] Liga šampiona <- uefa:1: 18 utakmica
+      Tue 24.11. 18:45  Bodø/Glimt - LASK
+      Tue 24.11. 18:45  Galatasaray - Aston Villa
+      Tue 24.11. 21:00  Real Madrid - PSV
+      Tue 24.11. 21:00  Man City - Napoli
+[OK] Liga šampiona <- espn:uefa.champions: 18 utakmica
+      Tue 24.11. 18:45  Bodo/Glimt - LASK Linz
+      Tue 24.11. 18:45  Galatasaray - Aston Villa
+      Tue 24.11. 21:00  Arsenal - Borussia Dortmund
+      Tue 24.11. 21:00  Como - AEK Athens
+[OK] Liga nacija <- espn:uefa.nations: 0 utakmica
+[OK] Liga nacija <- uefa:14: 0 utakmica
+[OK] Svetsko prvenstvo <- espn:fifa.world: 0 utakmica
+[OK] Evropsko prvenstvo <- espn:uefa.euro: 0 utakmica
+[OK] Kvalifikacije za SP <- espn:fifa.worldq.uefa: 0 utakmica
+[OK] Kvalifikacije za EP <- espn:uefa.euroq: 0 utakmica
+[OK] Prijateljska (Srbija) <- espn:fifa.friendly: 0 utakmica
+[OK] Premijer liga <- espn:eng.1: 10 utakmica
+      tabela (prva 4): Arsenal, Brighton & Hove Albion, Manchester City, Liverpool
+      Sat 21.11. 13:30  Manchester City - Fulham
+      Sat 21.11. 16:00  AFC Bournemouth - Nottingham Forest
+      Sat 21.11. 16:00  Aston Villa - Sunderland
+      Sat 21.11. 16:00  Chelsea - Leeds United
+[OK] La Liga <- espn:esp.1: 10 utakmica
+      tabela (prva 4): Barcelona, Real Madrid, Atlético Madrid, Real Betis
+      Fri 20.11. 21:00  Athletic Club - Espanyol
+      Sat 21.11. 14:00  Alavés - Deportivo
+      Sat 21.11. 16:15  Rayo Vallecano - Valencia
+      Sat 21.11. 18:30  Sevilla - Real Betis
+[OK] Serija A <- espn:ita.1: 10 utakmica
+      tabela (prva 4): Lazio, Internazionale, AS Roma, AC Milan
+      Sat 21.11. 15:00  Como - Cagliari
+      Sat 21.11. 15:00  Lazio - Lecce
+      Sat 21.11. 18:00  Parma - AS Roma
+      Sat 21.11. 20:45  Napoli - Torino
+[GREŠKA] Superliga Srbije <- espn:srb.1: HTTP Error 400: Bad Request
