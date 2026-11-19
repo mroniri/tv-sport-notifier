@@ -18,7 +18,9 @@
     }
   ],
   "fetched_at": "2026-11-19T13:42:49.990581+01:00",
-  "notified": {},
+  "notified": {
+    "6715722d34be": "2026-11-19T17:00:00+01:00"
+  },
   "seen": {
     "fudbal liga nacija danska norveska": "2026-11-18",
     "fudbal liga nacija grcka srbija": "2026-11-18",
