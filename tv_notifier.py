@@ -418,6 +418,26 @@ def parse_uefa(data, competition: str) -> list[Fixture]:
     return out
 
 
+def parse_tsdb(data, competition: str) -> list[Fixture]:
+    """TheSportsDB eventsday.php odgovor: {"events": [{strHomeTeam, strAwayTeam, strTimestamp(UTC)}]}"""
+    out: list[Fixture] = []
+    for e in (data or {}).get("events") or []:
+        try:
+            status = str(e.get("strStatus") or "").upper()
+            if any(x in status for x in SKIP_STATUS):
+                continue
+            stamp = e.get("strTimestamp") or (f"{e['dateEvent']}T{e['strTime']}" if e.get("strTime") else None)
+            if not stamp:
+                continue
+            start = _parse_utc(stamp)
+        except (TypeError, ValueError, AttributeError, KeyError):
+            continue
+        h, a = e.get("strHomeTeam"), e.get("strAwayTeam")
+        if h and a:
+            out.append(Fixture(start, h, a, competition))
+    return out
+
+
 def http_json(url: str, retries: int = 3):
     last: Exception | None = None
     for attempt in range(retries):
@@ -444,6 +464,11 @@ def fetch_fixtures(spec: str, competition: str, days: list[date], http=http_json
             url = (f"https://site.api.espn.com/apis/site/v2/sports/soccer/{arg}/scoreboard"
                    f"?dates={d:%Y%m%d}&limit=200")
             out += parse_espn(http(url), competition)
+        elif kind == "tsdb":
+            from urllib.parse import quote
+            url = (f"https://www.thesportsdb.com/api/v1/json/3/eventsday.php?d={d.isoformat()}"
+                   f"&l={quote(arg)}")
+            out += parse_tsdb(http(url), competition)
         elif kind == "uefa":
             url = (f"https://match.uefa.com/v5/matches?competitionId={arg}"
                    f"&fromDate={d.isoformat()}&toDate={d.isoformat()}&limit=100&offset=0&order=ASC")

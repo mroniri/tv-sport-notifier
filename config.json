@@ -324,9 +324,9 @@
       "kind": "derby",
       "country": "Srbija",
       "sources": [
-        "espn:srb.1",
-        "espn:ser.1",
-        "espn:srb.superliga"
+        "tsdb:Serbian Superliga",
+        "tsdb:Serbian SuperLiga",
+        "tsdb:Serbian Super Liga"
       ],
       "tv_keywords": [
         "superliga"
