@@ -181,21 +181,6 @@
           "Sampdoria"
         ]
       ]
-    },
-    {
-      "country": "Srbija",
-      "competitions": [
-        "Mozzart Bet Superliga",
-        "Superliga Srbije",
-        "Super liga Srbije",
-        "Superliga"
-      ],
-      "pairs": [
-        [
-          "Crvena zvezda|Zvezda|Crvena zvezda Beograd|Red Star Belgrade|Red Star|Crvena Zvezda Belgrade",
-          "Partizan|Partizan Beograd|Partizan Belgrade"
-        ]
-      ]
     }
   ],
   "serbia_names": [
@@ -318,21 +303,16 @@
         "serija"
       ],
       "top_n": 4
-    },
-    {
-      "name": "Superliga Srbije",
-      "kind": "derby",
-      "country": "Srbija",
-      "sources": [
-        "tsdb:Serbian Superliga",
-        "tsdb:Serbian SuperLiga",
-        "tsdb:Serbian Super Liga"
-      ],
-      "tv_keywords": [
-        "superliga"
-      ],
-      "top_n": 4,
-      "optional": true
     }
-  ]
+  ],
+  "tv_group_clubs": [
+    "Crvena zvezda",
+    "Partizan",
+    "Vojvodina"
+  ],
+  "tv_live_window": {
+    "from": "15:00",
+    "weekend_from": "12:00",
+    "to": "22:00"
+  }
 }

@@ -442,12 +442,10 @@ def http_json(url: str, retries: int = 3):
     last: Exception | None = None
     for attempt in range(retries):
         try:
-            req = urllib.request.Request(url, headers={
-                "User-Agent": BROWSER_UA,
-                "Accept": "application/json, text/plain, */*",
-                "Origin": "https://www.uefa.com",
-                "Referer": "https://www.uefa.com/",
-            })
+            headers = {"User-Agent": BROWSER_UA, "Accept": "application/json, text/plain, */*"}
+            if "uefa.com" in url:
+                headers.update({"Origin": "https://www.uefa.com", "Referer": "https://www.uefa.com/"})
+            req = urllib.request.Request(url, headers=headers)
             with urllib.request.urlopen(req, timeout=30) as resp:
                 return json.loads(resp.read().decode("utf-8"))
         except (urllib.error.URLError, TimeoutError, OSError, ValueError) as exc:
@@ -644,6 +642,40 @@ def find_tv(fx: Fixture, tv: list[tuple[Event, FootballMatch]], cfg: dict, keywo
     return channels, names
 
 
+def in_live_window(start: datetime, cfg: dict) -> bool:
+    w = cfg.get("tv_live_window") or {}
+    begin = w.get("weekend_from", "12:00") if start.weekday() >= 5 else w.get("from", "15:00")
+    return time.fromisoformat(begin) <= start.time() <= time.fromisoformat(w.get("to", "22:00"))
+
+
+def tv_group_matches(tv: list[tuple[Event, FootballMatch]], cfg: dict, today: date) -> list[dict]:
+    """Međusobne utakmice klubova iz `tv_group_clubs`, samo na osnovu TV rasporeda.
+
+    Za srpsku ligu nema pouzdanog zvaničnog izvora, pa se termin prihvata samo u
+    vreme uživo prenosa, i samo prvi termin iste utakmice u danu (kasniji su reprize).
+    """
+    clubs = cfg.get("tv_group_clubs") or []
+    out: dict[str, dict] = {}
+    for ev, fb in sorted(tv, key=lambda p: p[0].start):
+        if ev.start.date() != today or not in_live_window(ev.start, cfg):
+            continue
+        hi = [i for i, c in enumerate(clubs) if teams_match(fb.home, c)]
+        ai = [i for i, c in enumerate(clubs) if teams_match(fb.away, c)]
+        if not hi or not ai or hi[0] == ai[0]:
+            continue
+        pair = "|".join(sorted([clubs[hi[0]], clubs[ai[0]]]))
+        mid = hashlib.sha1(f"grp|{today}|{pair}".encode()).hexdigest()[:12]
+        if mid in out:
+            if ev.channel not in out[mid]["channels"]:
+                out[mid]["channels"].append(ev.channel)
+            continue
+        out[mid] = {"id": mid, "start": ev.start.isoformat(),
+                    "competition": fb.competition or "Superliga Srbije",
+                    "home": fb.home, "away": fb.away, "channels": [ev.channel],
+                    "reasons": ["Međusobni meč: Crvena zvezda / Partizan / Vojvodina"]}
+    return list(out.values())
+
+
 def build_matches(fixtures: list[Fixture], tv_events: list[Event], cfg: dict, today: date) -> list[dict]:
     comps = {c["name"]: c for c in cfg["competitions"]}
     tv = tv_football(tv_events, cfg)
@@ -669,6 +701,8 @@ def build_matches(fixtures: list[Fixture], tv_events: list[Event], cfg: dict, to
             "channels": channels,
             "reasons": reasons,
         }
+    for m in tv_group_matches(tv, cfg, today):
+        seen.setdefault(m["id"], m)
     return sorted(seen.values(), key=lambda m: m["start"])
 
 
