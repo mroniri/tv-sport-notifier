@@ -1,4 +1,4 @@
-Provera izvora, 19.11.2026 21:33, dani 2026-11-19 - 2026-11-25
+Provera izvora, 19.11.2026 21:42, dani 2026-11-19 - 2026-11-25
 
 [OK] Liga šampiona <- uefa:1: 18 utakmica
       Tue 24.11. 18:45  Bodø/Glimt - LASK
@@ -35,6 +35,3 @@ Provera izvora, 19.11.2026 21:33, dani 2026-11-19 - 2026-11-25
       Sat 21.11. 15:00  Lazio - Lecce
       Sat 21.11. 18:00  Parma - AS Roma
       Sat 21.11. 20:45  Napoli - Torino
-[GREŠKA] Superliga Srbije <- tsdb:Serbian Superliga: HTTP Error 403: Forbidden
-[GREŠKA] Superliga Srbije <- tsdb:Serbian SuperLiga: HTTP Error 403: Forbidden
-[GREŠKA] Superliga Srbije <- tsdb:Serbian Super Liga: HTTP Error 403: Forbidden
