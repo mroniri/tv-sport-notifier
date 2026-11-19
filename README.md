@@ -1,48 +1,32 @@
 # TV sport obaveštenja (fudbal)
 
-Program jednom dnevno (i na svakih 6h) čita TV raspored sa naslovi.net, izdvaja
-fudbalske utakmice po tvojim kriterijumima i ~1h pre početka šalje
-notifikaciju na telefon preko [ntfy](https://ntfy.sh).
+Program na svakih 15 min proverava **zvanične rasporede takmičenja** (UEFA za Ligu
+šampiona, ESPN za ostala takmičenja), izdvaja utakmice po tvojim kriterijumima i
+~1h pre početka šalje notifikaciju preko [ntfy](https://ntfy.sh).
+
+TV raspored (naslovi.net) služi samo da se vidi **na kom kanalu** se utakmica prenosi:
+termin mora da bude u vreme početka prave utakmice. Utakmica koje nema u zvaničnom
+rasporedu (reprize!) nema ni obaveštenja.
 
 ## Kriterijumi (izmena u `config.json`)
 
-Isključivo muški fudbal (naslov mora da počinje sa „Fudbal“; futsal, mali fudbal i
-američki fudbal ne prolaze), samo prave utakmice „A - B“ (pregledi, magazini,
-klasici i reprize se odbacuju):
-
-| Pravilo | Šta prolazi |
+| Šta | Prolazi |
 |---|---|
-| Liga šampiona | sve utakmice (bez kvalifikacija) |
-| Liga nacija | sve utakmice |
-| Prvenstva | svetsko i evropsko prvenstvo (bez klupskog SP) |
-| Kvalifikacije | za SP i EP, ali samo ako igra bar jedna od reprezentacija iz `rules.qualifiers.teams` (Nemačka, Italija, Španija, Francuska, Engleska, Holandija, Portugal, Belgija, Hrvatska) |
-| Srbija | svaka utakmica u kojoj igra reprezentacija Srbije, uključujući kvalifikacije (i mlade selekcije, `include_serbia_youth`) |
-| Derbiji | Engleska, Španija, Italija, Srbija — liste parova su u `derbies` |
+| Liga šampiona, Liga nacija, SP, EP | sve utakmice |
+| Kvalifikacije za SP i EP | sve utakmice evropskih reprezentacija |
+| Srbija | svaka utakmica reprezentacije Srbije (kvalifikacije, Liga nacija, prijateljske) |
+| Derbiji | Engleska, Španija, Italija, Srbija — parovi u `derbies` |
+| Vrh tabele | u istim ligama svaka utakmica između dva tima iz prva 4 mesta (`top_n` u `competitions`; tabela sa ESPN-a) |
 
-Ženski fudbal se isključuje (`exclude_women`): naslovi sa „(Ž)“, „žene“, „women“.
+- `competitions` – takmičenja i izvori (`uefa:ID` ili `espn:slug`), više izvora = rezerva.
+- `require_tv_listing` – ako je `true`, obaveštava samo ako je utakmica na kanalu iz tvog paketa (`allowed_channels`).
+- Ženski fudbal ne ulazi jer se prate samo muška takmičenja.
 
-Ostalo u `config.json`:
+## Provera izvora
 
-- `allowed_channels` – kanali iz tvog paketa SBB Net TV Premium + (sportski kanali, RTS 1-3,
-  Prva, Pink, B92, Happy TV, Nova S, M4 Sport). Poređenje je tolerantno: „Arena sport
-  Premium 1“ i „Arena Premium 1“, kao i „Eurosport 1“ i „Eurosport 1 HD“ su isti kanal.
-  Sport Klub nije u tvom paketu, pa nije na listi. Prazna lista = svi kanali.
-  `python tv_notifier.py --list` ispod liste prikazuje i utakmice koje su izbačene samo
-  zbog kanala, pa lako vidiš šta nedostaje.
-- `lead_minutes` – koliko ranije obaveštavati (60).
-- `urls` – linkovi sa rasporedom; može ih biti više.
-
-## Reprize
-
-Program ih odbacuje na tri načina:
-
-1. oznake u naslovu („(R)“, „repriza“, „snimak“, godina sezone i sl.);
-2. ista utakmica više puta u istom danu: obaveštava se samo o prvom terminu;
-3. utakmica koja je već bila u rasporedu prethodna 3 dana (`rerun_memory_days`) smatra se
-   reprizom. Zato je prvi dan rada najmanje pouzdan: ujutru prikazana repriza sinoćnje
-   utakmice biće tada još uzeta kao prava.
-
-Ako se desi da propusti reprizu ili odbaci pravu utakmicu, pošalji mi naslov pa ću da dotegnem pravila.
+Prvo pokretanje: Actions → Run workflow sa kvačicom *refresh*. U repozitorijumu nastaje
+`state/probe.txt` sa izveštajem koji izvori rade i koje utakmice vraćaju narednih 7 dana.
+Ako je neki izvor `[GREŠKA]`, javi mi sadržaj tog fajla.
 
 ## Podešavanje (jednokratno)
 

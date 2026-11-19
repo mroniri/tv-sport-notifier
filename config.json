@@ -38,77 +38,6 @@
     "Happy TV",
     "Nova S HD"
   ],
-  "exclude_women": true,
-  "rerun_memory_days": 3,
-  "live_window": {
-    "from": "15:00",
-    "weekend_from": "12:00",
-    "to": "22:00"
-  },
-  "serbia_team": "Srbija",
-  "include_serbia_youth": true,
-  "rules": {
-    "champions_league": {
-      "include": [
-        "liga sampiona"
-      ],
-      "exclude": [
-        "azij",
-        "afric",
-        "caf",
-        "concacaf",
-        "ofc",
-        "konmebol",
-        "arap",
-        "kvalifik"
-      ]
-    },
-    "nations_league": {
-      "include": [
-        "liga nacija"
-      ],
-      "exclude": []
-    },
-    "championships": {
-      "include": [
-        "svetsko prvenstvo",
-        "evropsko prvenstvo",
-        "mundijal",
-        "euro 20",
-        "uefa euro"
-      ],
-      "exclude": [
-        "kvalifik",
-        "klupsk",
-        "klubov"
-      ]
-    },
-    "qualifiers": {
-      "include": [
-        "svetsko prvenstvo",
-        "evropsko prvenstvo",
-        "mundijal",
-        "euro 20",
-        "uefa euro"
-      ],
-      "exclude": [
-        "klupsk",
-        "klubov"
-      ],
-      "teams": [
-        "Nemačka",
-        "Italija",
-        "Španija",
-        "Francuska",
-        "Engleska",
-        "Holandija",
-        "Portugal",
-        "Portugalija",
-        "Belgija",
-        "Hrvatska"
-      ]
-    }
-  },
   "not_live_keywords": [
     "pregled",
     "magazin",
@@ -267,6 +196,140 @@
           "Partizan"
         ]
       ]
+    }
+  ],
+  "serbia_names": [
+    "Srbija",
+    "Serbia"
+  ],
+  "require_tv_listing": true,
+  "tv_before_minutes": 30,
+  "tv_after_minutes": 10,
+  "competitions": [
+    {
+      "name": "Liga šampiona",
+      "kind": "all",
+      "sources": [
+        "uefa:1",
+        "espn:uefa.champions"
+      ],
+      "tv_keywords": [
+        "liga sampiona"
+      ]
+    },
+    {
+      "name": "Liga nacija",
+      "kind": "all",
+      "sources": [
+        "espn:uefa.nations",
+        "uefa:14"
+      ],
+      "tv_keywords": [
+        "liga nacija"
+      ]
+    },
+    {
+      "name": "Svetsko prvenstvo",
+      "kind": "all",
+      "sources": [
+        "espn:fifa.world"
+      ],
+      "tv_keywords": [
+        "svetsko prvenstvo"
+      ]
+    },
+    {
+      "name": "Evropsko prvenstvo",
+      "kind": "all",
+      "sources": [
+        "espn:uefa.euro"
+      ],
+      "tv_keywords": [
+        "evropsko prvenstvo"
+      ]
+    },
+    {
+      "name": "Kvalifikacije za SP",
+      "kind": "all",
+      "sources": [
+        "espn:fifa.worldq.uefa"
+      ],
+      "tv_keywords": [
+        "kvalifikacije",
+        "svetsko"
+      ]
+    },
+    {
+      "name": "Kvalifikacije za EP",
+      "kind": "all",
+      "sources": [
+        "espn:uefa.euroq"
+      ],
+      "tv_keywords": [
+        "kvalifikacije",
+        "evropsko"
+      ]
+    },
+    {
+      "name": "Prijateljska (Srbija)",
+      "kind": "serbia",
+      "sources": [
+        "espn:fifa.friendly"
+      ],
+      "tv_keywords": [
+        "prijatelj"
+      ]
+    },
+    {
+      "name": "Premijer liga",
+      "kind": "derby",
+      "country": "Engleska",
+      "sources": [
+        "espn:eng.1"
+      ],
+      "tv_keywords": [
+        "engleska",
+        "premijer"
+      ],
+      "top_n": 4
+    },
+    {
+      "name": "La Liga",
+      "kind": "derby",
+      "country": "Španija",
+      "sources": [
+        "espn:esp.1"
+      ],
+      "tv_keywords": [
+        "spanska",
+        "la liga"
+      ],
+      "top_n": 4
+    },
+    {
+      "name": "Serija A",
+      "kind": "derby",
+      "country": "Italija",
+      "sources": [
+        "espn:ita.1"
+      ],
+      "tv_keywords": [
+        "italijanska",
+        "serija"
+      ],
+      "top_n": 4
+    },
+    {
+      "name": "Superliga Srbije",
+      "kind": "derby",
+      "country": "Srbija",
+      "sources": [
+        "espn:srb.1"
+      ],
+      "tv_keywords": [
+        "superliga"
+      ],
+      "top_n": 4
     }
   ]
 }

@@ -1,17 +1,23 @@
 #!/usr/bin/env python3
-"""TV sport obaveštenja.
+"""TV sport obaveštenja (fudbal).
 
-Čita TV raspored sa naslovi.net, izdvaja fudbalske utakmice koje odgovaraju
-kriterijumima iz config.json i ~1h pre početka šalje ntfy notifikaciju.
+Tok rada:
+  1. Zvanični rasporedi takmičenja (UEFA / ESPN JSON) kažu KOJE utakmice se
+     igraju danas i u koliko sati počinju. Samo one dolaze u obzir, pa reprize
+     ne mogu da prođu.
+  2. naslovi.net TV raspored služi samo da se nađe KANAL na kom se utakmica
+     prenosi (termin mora da se poklopi sa početkom utakmice).
+  3. ~1h pre početka šalje se ntfy notifikacija.
 
 Samo standardna biblioteka (Python 3.9+). Pokretanje:
 
-    python tv_notifier.py                 # normalan rad (koristi ga GitHub Actions)
-    python tv_notifier.py --list          # prikaži današnje utakmice koje prolaze filtere
-    python tv_notifier.py --debug-parse   # prikaži šta je parser pročitao sa stranice
-    python tv_notifier.py --dry-run       # kao normalan rad, ali ništa ne šalje i ne pamti
-    python tv_notifier.py --test-notify   # pošalji probnu notifikaciju
-    python tv_notifier.py --html fajl.html --now 2026-11-18T07:00   # lokalni test
+    python tv_notifier.py                # normalan rad (koristi ga GitHub Actions)
+    python tv_notifier.py --refresh      # ponovo preuzmi i upiši state/probe.txt
+    python tv_notifier.py --list         # današnje utakmice koje prolaze filtere
+    python tv_notifier.py --probe        # proveri da li svi izvori rade
+    python tv_notifier.py --debug-parse  # šta je parser pročitao sa TV stranice
+    python tv_notifier.py --dry-run      # kao normalan rad, ali ništa ne šalje
+    python tv_notifier.py --test-notify  # probna notifikacija
 """
 
 from __future__ import annotations
@@ -27,7 +33,7 @@ import unicodedata
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
-from datetime import date, datetime, time, timedelta
+from datetime import date, datetime, time, timedelta, timezone
 from html.parser import HTMLParser
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -35,9 +41,14 @@ from zoneinfo import ZoneInfo
 ROOT = Path(__file__).resolve().parent
 CONFIG_PATH = ROOT / "config.json"
 STATE_PATH = ROOT / "state" / "state.json"
+STATE_VERSION = 2
 TZ = ZoneInfo("Europe/Belgrade")
 
-USER_AGENT = "Mozilla/5.0 (compatible; TVSportNotifier/1.0)"
+USER_AGENT = "Mozilla/5.0 (compatible; TVSportNotifier/2.0)"
+BROWSER_UA = (
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/124.0 Safari/537.36"
+)
 
 
 # --------------------------------------------------------------------------
@@ -77,12 +88,8 @@ def channel_key(name: str) -> str:
     return " ".join(key.split())
 
 
-def comp_key(competition: str) -> str:
-    return norm(strip_parens(competition))
-
-
 # --------------------------------------------------------------------------
-# Parsiranje HTML-a
+# TV raspored (naslovi.net): samo za nalaženje kanala
 # --------------------------------------------------------------------------
 
 class _ScheduleParser(HTMLParser):
@@ -137,14 +144,12 @@ def _segment_to_title_channel(seg: list[tuple[str, str | None]]) -> tuple[str, s
     while items and not items[0][1] and items[0][0].lower() in CATEGORY_WORDS:
         items.pop(0)
 
-    # Glavni put: naslov je tekst pre linka kanala (/tv-program/<kanal>/).
     for k, (text, href) in enumerate(items):
         if href and CHANNEL_HREF_RE.search(href):
             title = " ".join(t for t, _ in items[:k])
             title = re.sub(r"\s*[-–—]\s*$", "", title).strip()
             return (title, text) if title else None
 
-    # Rezerva: "Naslov - Kanal" u jednom tekstualnom čvoru.
     if items and not items[0][1]:
         m = re.match(r"^(.*\S)\s+[-–—]\s+([^-–—]+)$", items[0][0])
         if m:
@@ -190,15 +195,10 @@ def parse_schedule(html: str, base_date: date) -> tuple[list[Event], int]:
     return events, skipped
 
 
-# --------------------------------------------------------------------------
-# Fudbal: prepoznavanje utakmice i filteri
-# --------------------------------------------------------------------------
-
 FOOTBALL_PREFIX_RE = re.compile(r"^Fudbal\b\s*[-:]?\s*", re.IGNORECASE)
 TEAM_SPLIT_RE = re.compile(r"\s+(?:-|–|—|vs\.?)\s+", re.IGNORECASE)
-SEASON_RE = re.compile(r"\b(?:19|20)\d{2}/\d{2,4}\b")
 REPLAY_RE = re.compile(r"\(\s*R\s*\)")
-WOMEN_RE = re.compile(r"\(\s*[ŽW]\s*\)|\bžen(?:e|ski)\b|\bzen(?:e|ski)\b|\bwomen\b", re.IGNORECASE)
+SEASON_RE = re.compile(r"\b(?:19|20)\d{2}/\d{2,4}\b")
 
 
 @dataclass
@@ -228,118 +228,388 @@ def parse_football(title: str) -> FootballMatch | None:
     return FootballMatch(competition.strip(), home, away)
 
 
-def _rule_hit(rule: dict, ck: str) -> bool:
-    return any(k in ck for k in rule["include"]) and not any(k in ck for k in rule.get("exclude", []))
-
-
-def is_serbia(team: str, cfg: dict) -> bool:
-    key = norm(strip_parens(team))
-    youth = re.search(r"\bu\d{2}\b", key) is not None
-    base = re.sub(r"\bu\d{2}\b", "", key).strip()
-    if base != norm(cfg["serbia_team"]):
-        return False
-    return cfg.get("include_serbia_youth", True) or not youth
-
-
-def derby_country(fb: FootballMatch, ck: str, cfg: dict) -> str | None:
-    home, away = club_key(fb.home), club_key(fb.away)
-    for d in cfg["derbies"]:
-        if ck not in {comp_key(c) for c in d["competitions"]}:
-            continue
-        for side_a, side_b in d["pairs"]:
-            a = {club_key(x) for x in side_a.split("|")}
-            b = {club_key(x) for x in side_b.split("|")}
-            if (home in a and away in b) or (home in b and away in a):
-                return d["country"]
-    return None
-
-
-def classify(fb: FootballMatch, raw_title: str, cfg: dict) -> list[str]:
-    """Lista razloga zbog kojih utakmica prolazi filtere (prazna = ne prolazi)."""
-    nt = norm(raw_title)
-    if (
-        any(k in nt for k in cfg["not_live_keywords"])
-        or SEASON_RE.search(raw_title)
-        or REPLAY_RE.search(raw_title)
-    ):
-        return []
-    if cfg.get("exclude_women", True) and WOMEN_RE.search(raw_title):
-        return []
-
-    ck = comp_key(fb.competition)
-    rules = cfg["rules"]
-    reasons: list[str] = []
-    if _rule_hit(rules["champions_league"], ck):
-        reasons.append("Liga šampiona")
-    if _rule_hit(rules["nations_league"], ck):
-        reasons.append("Liga nacija")
-    if _rule_hit(rules["championships"], ck):
-        reasons.append("Svetsko/evropsko prvenstvo")
-    q = rules.get("qualifiers")
-    if (
-        q
-        and "kvalifik" in ck
-        and any(k in ck for k in q["include"])
-        and not any(k in ck for k in q.get("exclude", []))
-    ):
-        famous = {norm(t) for t in q["teams"]}
-        if norm(strip_parens(fb.home)) in famous or norm(strip_parens(fb.away)) in famous:
-            reasons.append("Kvalifikacije (poznata reprezentacija)")
-    if is_serbia(fb.home, cfg) or is_serbia(fb.away, cfg):
-        reasons.append("Reprezentacija Srbije")
-    country = derby_country(fb, ck, cfg)
-    if country:
-        reasons.append(f"Derbi ({country})")
-    return reasons
-
-
-def in_live_window(start: datetime, cfg: dict) -> bool:
-    """Prenosi uživo su samo u okviru live_window; sve van njega su reprize."""
-    w = cfg.get("live_window")
-    if not w:
-        return True
-    begin = w["weekend_from"] if start.weekday() >= 5 and w.get("weekend_from") else w["from"]
-    return time.fromisoformat(begin) <= start.time() <= time.fromisoformat(w["to"])
-
-
-def select_matches(events: list[Event], cfg: dict) -> list[dict]:
-    """Filtrira i spaja iste utakmice sa više kanala / reprize u jednu stavku."""
+def tv_football(events: list[Event], cfg: dict) -> list[tuple[Event, FootballMatch]]:
+    """Fudbalski termini sa kanala iz paketa, bez najava, pregleda i repriza."""
     allowed = {channel_key(c) for c in cfg.get("allowed_channels", [])}
-    groups: dict[str, list[tuple[Event, FootballMatch, list[str]]]] = {}
+    out = []
     for ev in events:
         if allowed and channel_key(ev.channel) not in allowed:
-            continue
-        if not in_live_window(ev.start, cfg):
             continue
         fb = parse_football(ev.title)
         if fb is None:
             continue
-        reasons = classify(fb, ev.title, cfg)
-        if reasons:
-            groups.setdefault(norm(ev.title), []).append((ev, fb, reasons))
+        nt = norm(ev.title)
+        if any(k in nt for k in cfg.get("not_live_keywords", [])) or SEASON_RE.search(ev.title) \
+                or REPLAY_RE.search(ev.title):
+            continue
+        out.append((ev, fb))
+    return out
 
-    out: list[dict] = []
-    for items in groups.values():
-        items.sort(key=lambda x: x[0].start)
-        first_ev, fb, reasons = items[0]
-        channels: list[str] = []
-        for ev, _, _ in items:
-            # Isti termin na više kanala se spaja; kasnija repriza se ignoriše.
-            if ev.start - first_ev.start <= timedelta(minutes=30) and ev.channel not in channels:
+
+# --------------------------------------------------------------------------
+# Imena timova: poklapanje srpskih (TV) i engleskih (zvanični izvori) imena
+# --------------------------------------------------------------------------
+
+COUNTRIES_SR_EN = {
+    "albanija": "albania", "andora": "andorra", "jermenija": "armenia", "austrija": "austria",
+    "azerbejdzan": "azerbaijan", "belorusija": "belarus", "belgija": "belgium",
+    "bosna i hercegovina": "bosnia and herzegovina", "bih": "bosnia and herzegovina",
+    "bugarska": "bulgaria", "hrvatska": "croatia", "kipar": "cyprus", "ceska": "czechia|czech republic",
+    "danska": "denmark", "engleska": "england", "estonija": "estonia", "farska ostrva": "faroe islands",
+    "finska": "finland", "francuska": "france", "gruzija": "georgia", "nemacka": "germany",
+    "gibraltar": "gibraltar", "grcka": "greece", "madjarska": "hungary", "island": "iceland",
+    "izrael": "israel", "italija": "italy", "kazahstan": "kazakhstan", "kosovo": "kosovo",
+    "letonija": "latvia", "lihtenstajn": "liechtenstein", "litvanija": "lithuania",
+    "luksemburg": "luxembourg", "malta": "malta", "moldavija": "moldova", "crna gora": "montenegro",
+    "holandija": "netherlands", "severna makedonija": "north macedonia",
+    "severna irska": "northern ireland", "norveska": "norway", "poljska": "poland",
+    "portugal": "portugal", "portugalija": "portugal", "irska": "republic of ireland|ireland",
+    "rumunija": "romania", "rusija": "russia", "san marino": "san marino", "skotska": "scotland",
+    "srbija": "serbia", "slovacka": "slovakia", "slovenija": "slovenia", "spanija": "spain",
+    "svedska": "sweden", "svajcarska": "switzerland", "turska": "turkey|turkiye|turkiye",
+    "ukrajina": "ukraine", "vels": "wales", "brazil": "brazil", "argentina": "argentina",
+    "urugvaj": "uruguay", "kolumbija": "colombia", "meksiko": "mexico", "sad": "united states|usa",
+    "japan": "japan", "juzna koreja": "south korea", "maroko": "morocco", "senegal": "senegal",
+    "australija": "australia", "kanada": "canada", "egipat": "egypt", "nigerija": "nigeria",
+}
+
+GENERIC_TOKENS = {
+    "fc", "cf", "ac", "as", "sc", "afc", "fk", "sk", "if", "bk", "united", "city", "club", "real",
+    "sporting", "athletic", "inter", "the", "de", "la", "del", "of", "and", "dynamo", "dinamo",
+    "olympique", "olympiakos", "sport", "town", "county", "rovers", "wanderers",
+}
+
+
+def _name_variants(name: str) -> set[str]:
+    base = norm(strip_parens(name))
+    variants = {club_key(name), base}
+    for alt in COUNTRIES_SR_EN.get(base, "").split("|"):
+        if alt:
+            variants.add(norm(alt))
+    return {v for v in variants if v}
+
+
+def _tokens(name: str) -> set[str]:
+    return {t for t in name.split() if len(t) >= 3 and t not in GENERIC_TOKENS}
+
+
+def teams_match(a: str, b: str) -> bool:
+    """Da li su `a` (npr. TV, srpski) i `b` (zvanični izvor, engleski) isti tim."""
+    va, vb = _name_variants(a), _name_variants(b)
+    if va & vb:
+        return True
+    for x in va:
+        for y in vb:
+            if _tokens(x) & _tokens(y) or any(p != q and (p.startswith(q) or q.startswith(p))
+                                              for p in _tokens(x) for q in _tokens(y)):
+                gx = {t for t in x.split() if t in GENERIC_TOKENS and t not in CLUB_NOISE}
+                gy = {t for t in y.split() if t in GENERIC_TOKENS and t not in CLUB_NOISE}
+                if gx and gy and not (gx & gy):
+                    continue  # Manchester City != Manchester United
+                return True
+            if min(len(x), len(y)) >= 3 and (x.startswith(y + " ") or y.startswith(x + " ")):
+                return True
+    return False
+
+
+# --------------------------------------------------------------------------
+# Zvanični rasporedi
+# --------------------------------------------------------------------------
+
+@dataclass
+class Fixture:
+    start: datetime
+    home: str
+    away: str
+    competition: str  # ime takmičenja iz config.json
+    top4: bool = False  # oba tima u vrhu tabele (samo za ligaška takmičenja)
+
+
+def _parse_utc(text: str) -> datetime:
+    t = text.strip().replace("Z", "+00:00")
+    dt = datetime.fromisoformat(t)
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(TZ)
+
+
+SKIP_STATUS = ("POSTPONED", "CANCEL", "ABANDON", "SUSPEND")
+
+
+def parse_espn(data: dict, competition: str) -> list[Fixture]:
+    out: list[Fixture] = []
+    for ev in (data or {}).get("events") or []:
+        try:
+            status = json.dumps(ev.get("status") or {}).upper()
+            if any(s in status for s in SKIP_STATUS):
+                continue
+            comp = (ev.get("competitions") or [{}])[0]
+            cs = comp.get("competitors") or []
+            names = {}
+            for c in cs:
+                team = c.get("team") or {}
+                names[c.get("homeAway")] = team.get("displayName") or team.get("name") or ""
+            home, away = names.get("home"), names.get("away")
+            if not (home and away) and len(cs) == 2:
+                home = (cs[0].get("team") or {}).get("displayName")
+                away = (cs[1].get("team") or {}).get("displayName")
+            start = _parse_utc(ev.get("date") or comp.get("date"))
+        except (TypeError, ValueError, AttributeError, IndexError):
+            continue
+        if home and away:
+            out.append(Fixture(start, home, away, competition))
+    return out
+
+
+def parse_uefa(data, competition: str) -> list[Fixture]:
+    matches = data if isinstance(data, list) else (data or {}).get("matches") or []
+    out: list[Fixture] = []
+    for m in matches:
+        try:
+            status = str(m.get("status") or "").upper()
+            if any(s in status for s in SKIP_STATUS):
+                continue
+            home = (m.get("homeTeam") or {}).get("internationalName") or (m.get("homeTeam") or {}).get("teamName")
+            away = (m.get("awayTeam") or {}).get("internationalName") or (m.get("awayTeam") or {}).get("teamName")
+            ko = m.get("kickOffTime") or {}
+            stamp = ko.get("dateTime")
+            if not stamp:
+                continue
+            start = _parse_utc(stamp)
+        except (TypeError, ValueError, AttributeError):
+            continue
+        if home and away:
+            out.append(Fixture(start, home, away, competition))
+    return out
+
+
+def http_json(url: str, retries: int = 3):
+    last: Exception | None = None
+    for attempt in range(retries):
+        try:
+            req = urllib.request.Request(url, headers={
+                "User-Agent": BROWSER_UA,
+                "Accept": "application/json, text/plain, */*",
+                "Origin": "https://www.uefa.com",
+                "Referer": "https://www.uefa.com/",
+            })
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                return json.loads(resp.read().decode("utf-8"))
+        except (urllib.error.URLError, TimeoutError, OSError, ValueError) as exc:
+            last = exc
+            time_mod.sleep(2 * (attempt + 1))
+    raise RuntimeError(str(last))
+
+
+def fetch_fixtures(spec: str, competition: str, days: list[date], http=http_json) -> list[Fixture]:
+    kind, _, arg = spec.partition(":")
+    out: list[Fixture] = []
+    for d in days:
+        if kind == "espn":
+            url = (f"https://site.api.espn.com/apis/site/v2/sports/soccer/{arg}/scoreboard"
+                   f"?dates={d:%Y%m%d}&limit=200")
+            out += parse_espn(http(url), competition)
+        elif kind == "uefa":
+            url = (f"https://match.uefa.com/v5/matches?competitionId={arg}"
+                   f"&fromDate={d.isoformat()}&toDate={d.isoformat()}&limit=100&offset=0&order=ASC")
+            out += parse_uefa(http(url), competition)
+        else:
+            raise ValueError(f"nepoznat izvor: {spec}")
+    return out
+
+
+def parse_espn_standings(data: dict, top_n: int) -> list[str]:
+    """Imena prvih `top_n` timova sa ESPN tabele (tolerantno prema obliku odgovora)."""
+    entries: list = []
+    for ch in (data or {}).get("children") or [data or {}]:
+        entries += ((ch.get("standings") or {}).get("entries")) or []
+    rows = []
+    for pos, e in enumerate(entries):
+        team = e.get("team") or {}
+        name = team.get("displayName") or team.get("name")
+        rank = pos + 1
+        for st in e.get("stats") or []:
+            if st.get("name") == "rank" and st.get("value") is not None:
+                rank = int(st["value"])
+        if name:
+            rows.append((rank, pos, name))
+    rows.sort()
+    return [n for _, _, n in rows[:top_n]]
+
+
+def fetch_top(spec: str, top_n: int, http=http_json) -> list[str]:
+    kind, _, arg = spec.partition(":")
+    if kind != "espn":
+        raise ValueError(f"tabela nije podržana za izvor: {spec}")
+    teams = parse_espn_standings(http(f"https://site.api.espn.com/apis/v2/sports/soccer/{arg}/standings"), top_n)
+    if len(teams) < top_n:
+        raise RuntimeError("tabela je prazna ili nepoznatog oblika")
+    return teams
+
+
+def get_fixtures(cfg: dict, today: date, http=http_json) -> tuple[list[Fixture], dict[str, str]]:
+    """Za svako takmičenje probava izvore redom; vraća (utakmice, {takmičenje: greška})."""
+    days = [today, today + timedelta(days=1)]
+    out: list[Fixture] = []
+    failed: dict[str, str] = {}
+    for comp in cfg["competitions"]:
+        errors = []
+        for spec in comp["sources"]:
+            try:
+                out += fetch_fixtures(spec, comp["name"], days, http)
+                break
+            except Exception as exc:  # noqa: BLE001
+                errors.append(f"{spec}: {exc}")
+        else:
+            failed[comp["name"]] = "; ".join(errors)
+            continue
+        n = comp.get("top_n")
+        if n:
+            try:
+                top = None
+                for spec in comp["sources"]:
+                    try:
+                        top = fetch_top(spec, n, http)
+                        break
+                    except Exception as exc:  # noqa: BLE001
+                        last = exc
+                if top is None:
+                    raise last
+                for f in out:
+                    if f.competition == comp["name"]:
+                        f.top4 = (any(teams_match(f.home, t) for t in top)
+                                  and any(teams_match(f.away, t) for t in top))
+            except Exception as exc:  # noqa: BLE001
+                failed[comp["name"] + " (tabela)"] = str(exc)
+    return out, failed
+
+
+def probe(cfg: dict, today: date, http=http_json, days_ahead: int = 6) -> str:
+    """Izveštaj o tome koji izvori rade i šta vraćaju (za dijagnostiku)."""
+    days = [today + timedelta(days=i) for i in range(days_ahead + 1)]
+    lines = [f"Provera izvora, {datetime.now(TZ):%d.%m.%Y %H:%M}, dani {days[0]} - {days[-1]}", ""]
+    for comp in cfg["competitions"]:
+        for spec in comp["sources"]:
+            try:
+                fx = sorted(fetch_fixtures(spec, comp["name"], days, http), key=lambda f: f.start)
+                lines.append(f"[OK] {comp['name']} <- {spec}: {len(fx)} utakmica")
+                if comp.get("top_n"):
+                    try:
+                        lines.append(f"      tabela (prva {comp['top_n']}): {', '.join(fetch_top(spec, comp['top_n'], http))}")
+                    except Exception as exc:  # noqa: BLE001
+                        lines.append(f"      [GREŠKA] tabela: {exc}")
+                for f in fx[:4]:
+                    lines.append(f"      {f.start:%a %d.%m. %H:%M}  {f.home} - {f.away}")
+            except Exception as exc:  # noqa: BLE001
+                lines.append(f"[GREŠKA] {comp['name']} <- {spec}: {exc}")
+    return "\n".join(lines) + "\n"
+
+
+# --------------------------------------------------------------------------
+# Filteri (šta nas zanima) i spajanje sa TV rasporedom
+# --------------------------------------------------------------------------
+
+def is_serbia(team: str, cfg: dict) -> bool:
+    return norm(strip_parens(team)) in {norm(n) for n in cfg["serbia_names"]}
+
+
+def is_famous(team: str, cfg: dict) -> bool:
+    return norm(strip_parens(team)) in {norm(n) for n in cfg["famous_teams"]}
+
+
+def is_derby(home: str, away: str, country: str, cfg: dict) -> bool:
+    h, a = club_key(home), club_key(away)
+    for d in cfg["derbies"]:
+        if d["country"] != country:
+            continue
+        for side_a, side_b in d["pairs"]:
+            A = {club_key(x) for x in side_a.split("|")}
+            B = {club_key(x) for x in side_b.split("|")}
+            if (h in A and a in B) or (h in B and a in A):
+                return True
+    return False
+
+
+def classify_fixture(fx: Fixture, comp: dict, cfg: dict) -> list[str]:
+    """Lista razloga zbog kojih utakmica prolazi filtere (prazna = ne prolazi)."""
+    kind = comp["kind"]
+    serbia = is_serbia(fx.home, cfg) or is_serbia(fx.away, cfg)
+    reasons: list[str] = []
+    if kind == "all":
+        reasons.append(comp["name"])
+    elif kind == "famous":
+        if is_famous(fx.home, cfg) or is_famous(fx.away, cfg):
+            reasons.append(f"{comp['name']} (poznata reprezentacija)")
+    elif kind == "derby":
+        if is_derby(fx.home, fx.away, comp["country"], cfg):
+            reasons.append(f"Derbi ({comp['country']})")
+        if fx.top4:
+            reasons.append(f"Međusobni duel prva {comp.get('top_n', 4)} ({comp['country']})")
+        return reasons  # Srbija se ovde ne računa
+    if serbia:
+        reasons.append("Reprezentacija Srbije")
+    return reasons
+
+
+def find_tv(fx: Fixture, tv: list[tuple[Event, FootballMatch]], cfg: dict, keywords: list[str] | None = None):
+    """Kanali na kojima se utakmica prenosi i TV imena timova.
+
+    1) termin u blizini početka + poklapanje imena timova;
+    2) ako imena ne odgovaraju (srpska transkripcija klubova), termin tačno u
+       vreme početka (+-5 min) čije se takmičenje poklapa sa ključnim rečima.
+    """
+    lo = fx.start - timedelta(minutes=cfg.get("tv_before_minutes", 30))
+    hi = fx.start + timedelta(minutes=cfg.get("tv_after_minutes", 10))
+    channels: list[str] = []
+    names = None
+    near = [(ev, fb) for ev, fb in tv if lo <= ev.start <= hi]
+    for ev, fb in near:
+        if (teams_match(fb.home, fx.home) or teams_match(fb.away, fx.away)
+                or teams_match(fb.home, fx.away) or teams_match(fb.away, fx.home)):
+            if ev.channel not in channels:
                 channels.append(ev.channel)
-        start_iso = first_ev.start.isoformat()
-        out.append({
-            "id": hashlib.sha1(f"{start_iso}|{norm(first_ev.title)}".encode()).hexdigest()[:12],
+            names = names or (fb.home, fb.away)
+    if channels or not keywords:
+        return channels, names
+    kws = [norm(k) for k in keywords]
+    exact = [(ev, fb) for ev, fb in near
+             if abs((ev.start - fx.start).total_seconds()) <= 300
+             and any(k in norm(fb.competition) for k in kws)]
+    pairs = {(norm(fb.home), norm(fb.away)) for _, fb in exact}
+    if len(pairs) == 1:  # nedvosmisleno: samo jedna utakmica takmičenja u tom terminu
+        for ev, fb in exact:
+            if ev.channel not in channels:
+                channels.append(ev.channel)
+            names = names or (fb.home, fb.away)
+    return channels, names
+
+
+def build_matches(fixtures: list[Fixture], tv_events: list[Event], cfg: dict, today: date) -> list[dict]:
+    comps = {c["name"]: c for c in cfg["competitions"]}
+    tv = tv_football(tv_events, cfg)
+    seen: dict[str, dict] = {}
+    for fx in fixtures:
+        if fx.start.astimezone(TZ).date() != today:
+            continue
+        reasons = classify_fixture(fx, comps[fx.competition], cfg)
+        if not reasons:
+            continue
+        channels, names = find_tv(fx, tv, cfg, comps[fx.competition].get("tv_keywords"))
+        if not channels and cfg.get("require_tv_listing"):
+            continue
+        home, away = names if names else (fx.home, fx.away)
+        start_iso = fx.start.isoformat()
+        mid = hashlib.sha1(f"{start_iso}|{norm(fx.home)}|{norm(fx.away)}".encode()).hexdigest()[:12]
+        seen[mid] = {
+            "id": mid,
             "start": start_iso,
-            "title": first_ev.title,
-            "competition": fb.competition,
-            "home": fb.home,
-            "away": fb.away,
+            "competition": fx.competition,
+            "home": home,
+            "away": away,
             "channels": channels,
             "reasons": reasons,
-        })
-    out.sort(key=lambda d: d["start"])
-    return out
+        }
+    return sorted(seen.values(), key=lambda m: m["start"])
 
 
 # --------------------------------------------------------------------------
@@ -364,11 +634,11 @@ def build_message(m: dict, now: datetime) -> tuple[str, str]:
     start = datetime.fromisoformat(m["start"]).astimezone(TZ)
     minutes = max(0, round((start - now).total_seconds() / 60))
     title = f"{m['home']} – {m['away']}"
-    lines = []
-    if m["competition"]:
-        lines.append(m["competition"])
-    lines.append(f"Počinje u {start:%H:%M} (za {minutes} min)")
-    lines.append(f"Kanal: {', '.join(m['channels'])}")
+    lines = [m["competition"], f"Počinje u {start:%H:%M} (za {minutes} min)"]
+    if m["channels"]:
+        lines.append(f"Kanal: {', '.join(m['channels'])}")
+    else:
+        lines.append("Kanal: nije nađen u TV rasporedu (proveri Arena Sport)")
     lines.append(f"Razlog: {', '.join(m['reasons'])}")
     return title, "\n".join(lines)
 
@@ -395,7 +665,7 @@ def send_ntfy(title: str, message: str, *, priority: int = 4, tags: list[str] | 
 
 
 # --------------------------------------------------------------------------
-# Preuzimanje i stanje
+# Preuzimanje TV stranice i stanje
 # --------------------------------------------------------------------------
 
 def fetch_html(url: str, retries: int = 3) -> str:
@@ -424,36 +694,19 @@ def load_state(path: Path) -> dict:
             state = json.load(f)
     except (FileNotFoundError, json.JSONDecodeError):
         state = {}
+    if state.get("version") != STATE_VERSION:
+        # stara verzija programa: odbaci spisak utakmica (mogao je da sadrži reprize)
+        state["events"] = []
+        state["date"] = None
+        state["fetched_at"] = None
+        state["version"] = STATE_VERSION
+        state.pop("seen", None)
     state.setdefault("date", None)
     state.setdefault("fetched_at", None)
     state.setdefault("events", [])
     state.setdefault("notified", {})
     state.setdefault("alerts", {})
-    state.setdefault("seen", {})
     return state
-
-
-def drop_reruns(matches: list[dict], state: dict, today: date, cfg: dict, log) -> list[dict]:
-    """Odbacuje utakmice koje su već bile na rasporedu prethodnih dana (to su reprize).
-
-    Prvi put kad se utakmica pojavi u rasporedu pamti se datum; ako se ista utakmica
-    pojavi kasnijeg dana (u okviru rerun_memory_days), smatra se reprizom.
-    """
-    window = timedelta(days=cfg.get("rerun_memory_days", 3))
-    seen = state["seen"]
-    kept = []
-    for m in matches:
-        key = norm(m["title"])
-        first = date.fromisoformat(seen[key]) if key in seen else None
-        if first is not None and first < today and today - first <= window:
-            log(f"Preskačem reprizu: {m['title']} (već viđeno {first.isoformat()}).")
-            continue
-        if first is None or today - first > window:
-            seen[key] = today.isoformat()
-        kept.append(m)
-    old = (today - timedelta(days=10)).isoformat()
-    state["seen"] = {k: v for k, v in seen.items() if v >= old}
-    return kept
 
 
 def save_state(path: Path, state: dict) -> None:
@@ -482,6 +735,20 @@ def _alert_once(state: dict, kind: str, today: date, title: str, message: str, n
         log(f"Upozorenje nije poslato: {exc}")
 
 
+def fetch_tv_events(cfg: dict, today: date, fetch_fn, log) -> tuple[list[Event], str | None]:
+    events: list[Event] = []
+    errors: list[str] = []
+    for url in cfg["urls"]:
+        try:
+            parsed, skipped = parse_schedule(fetch_fn(url), today)
+        except Exception as exc:  # noqa: BLE001
+            errors.append(f"{url}: {exc}")
+            continue
+        log(f"{url}: pročitano {len(parsed)} termina (preskočeno {skipped}).")
+        events += parsed
+    return events, ("; ".join(errors) if errors else None)
+
+
 # --------------------------------------------------------------------------
 # Glavni tok
 # --------------------------------------------------------------------------
@@ -491,6 +758,7 @@ def run(
     *,
     now: datetime,
     fetch_fn=fetch_html,
+    http_fn=http_json,
     notify_fn=send_ntfy,
     state_path: Path = STATE_PATH,
     dry_run: bool = False,
@@ -500,49 +768,56 @@ def run(
     today = now.date()
     state = load_state(state_path)
 
-    # Očisti stare zapise o poslatim obaveštenjima.
     cutoff = (now - timedelta(days=2)).isoformat()
     state["notified"] = {k: v for k, v in state["notified"].items() if v >= cutoff}
 
     exit_code = 0
     if _needs_refresh(state, today, now, cfg, force_refresh):
-        events: list[Event] = []
-        errors: list[str] = []
-        for url in cfg["urls"]:
-            try:
-                html = fetch_fn(url)
-            except Exception as exc:  # noqa: BLE001
-                errors.append(f"{url}: {exc}")
-                continue
-            parsed, skipped = parse_schedule(html, today)
-            log(f"{url}: pročitano {len(parsed)} termina (preskočeno {skipped}).")
-            events.extend(parsed)
+        fixtures, failed = get_fixtures(cfg, today, http_fn)
+        for name, err in failed.items():
+            if name.endswith("(tabela)"):
+                log(f"Tabela nije dostupna: {name}: {err}")
+        # greška pri čitanju tabele ne smatra se greškom rasporeda (samo se ne primenjuje pravilo top 4)
+        failed = {k: v for k, v in failed.items() if not k.endswith("(tabela)")}
+        all_failed = {c["name"] for c in cfg["competitions"]} <= set(failed)
+        for name, err in failed.items():
+            log(f"Izvor nije dostupan: {name}: {err}")
+        have_cache = state["date"] == today.isoformat()
 
-        if events:
-            state["events"] = drop_reruns(select_matches(events, cfg), state, today, cfg, log)
-            state["date"] = today.isoformat()
-            state["fetched_at"] = now.isoformat()
-            log(f"Utakmica koje prolaze filtere: {len(state['events'])}.")
-        else:
-            have_cache = state["date"] == today.isoformat()
-            if errors:
-                log("Greška pri preuzimanju: " + "; ".join(errors))
-                if have_cache:
-                    log("Koristim sačuvani današnji raspored.")
-                elif not dry_run:
-                    _alert_once(state, "fetch", today, "TV obaveštenja: greška",
-                                "Ne mogu da preuzmem TV raspored sa stranice. " + errors[0][:200], notify_fn, log)
-                    exit_code = 1
-                else:
-                    exit_code = 1
+        if all_failed:
+            if not have_cache:
+                exit_code = 1
+                if not dry_run:
+                    _alert_once(state, "sources", today, "TV obaveštenja: greška",
+                                "Ne mogu da preuzmem zvanične rasporede utakmica. Pokušaću ponovo.",
+                                notify_fn, log)
             else:
-                log("Stranica je učitana, ali parser nije našao nijedan termin.")
-                if not have_cache:
-                    if not dry_run:
-                        _alert_once(state, "parse", today, "TV obaveštenja: greška",
-                                    "Stranica je učitana ali ne mogu da pročitam raspored. "
-                                    "Verovatno se promenio izgled stranice.", notify_fn, log)
-                    exit_code = 1
+                log("Koristim sačuvani današnji raspored.")
+        else:
+            tv_events, tv_error = fetch_tv_events(cfg, today, fetch_fn, log)
+            if tv_error:
+                log(f"TV raspored nije dostupan: {tv_error}")
+            matches = build_matches(fixtures, tv_events, cfg, today)
+            if failed and have_cache:
+                keep = [m for m in state["events"] if m["competition"] in failed]
+                ids = {m["id"] for m in matches}
+                matches += [m for m in keep if m["id"] not in ids]
+                matches.sort(key=lambda m: m["start"])
+            state["events"] = matches
+            state["date"] = today.isoformat()
+            # kod delimične greške fetched_at ostaje prazan, pa se pokušava ponovo pri sledećem pokretanju
+            state["fetched_at"] = None if (failed or tv_error) else now.isoformat()
+            log(f"Utakmica koje prolaze filtere: {len(matches)}.")
+            if failed and not dry_run:
+                _alert_once(state, "partial", today, "TV obaveštenja: delimična greška",
+                            "Nedostupan raspored za: " + ", ".join(failed), notify_fn, log)
+
+        if force_refresh and not dry_run:
+            try:
+                (state_path.parent).mkdir(parents=True, exist_ok=True)
+                (state_path.parent / "probe.txt").write_text(probe(cfg, today, http_fn), encoding="utf-8")
+            except Exception as exc:  # noqa: BLE001
+                log(f"Izveštaj o izvorima nije upisan: {exc}")
 
     due = due_matches(state["events"], now, cfg, state["notified"])
     for m in due:
@@ -572,18 +847,19 @@ def _print_list(matches: list[dict]) -> None:
     for m in matches:
         start = datetime.fromisoformat(m["start"]).astimezone(TZ)
         print(f"{start:%d.%m. %H:%M}  {m['home']} – {m['away']}  [{m['competition']}]  "
-              f"{', '.join(m['channels'])}  ({', '.join(m['reasons'])})")
+              f"{', '.join(m['channels']) or 'kanal nepoznat'}  ({', '.join(m['reasons'])})")
 
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="TV sport obaveštenja (fudbal)")
     ap.add_argument("--list", action="store_true", help="prikaži današnje utakmice koje prolaze filtere")
-    ap.add_argument("--debug-parse", action="store_true", help="prikaži šta je parser pročitao")
+    ap.add_argument("--probe", action="store_true", help="proveri da li svi izvori rade")
+    ap.add_argument("--debug-parse", action="store_true", help="prikaži šta je parser pročitao sa TV stranice")
     ap.add_argument("--dry-run", action="store_true", help="ne šalji i ne pamti ništa")
     ap.add_argument("--test-notify", action="store_true", help="pošalji probnu notifikaciju")
-    ap.add_argument("--refresh", action="store_true", help="ponovo preuzmi raspored")
-    ap.add_argument("--html", help="koristi lokalni HTML fajl umesto preuzimanja")
-    ap.add_argument("--now", help="lažno trenutno vreme, npr. 2026-11-18T07:00")
+    ap.add_argument("--refresh", action="store_true", help="ponovo preuzmi raspored i upiši state/probe.txt")
+    ap.add_argument("--html", help="koristi lokalni HTML fajl umesto preuzimanja TV rasporeda")
+    ap.add_argument("--now", help="lažno trenutno vreme, npr. 2026-11-24T19:00")
     ap.add_argument("--config", default=str(CONFIG_PATH))
     args = ap.parse_args(argv)
 
@@ -601,27 +877,23 @@ def main(argv: list[str] | None = None) -> int:
     else:
         fetch_fn = fetch_html
 
-    if args.debug_parse or args.list:
-        events: list[Event] = []
-        for url in cfg["urls"]:
-            parsed, skipped = parse_schedule(fetch_fn(url), now.date())
-            print(f"{url}: {len(parsed)} termina, preskočeno {skipped}")
-            events.extend(parsed)
-        if args.debug_parse:
-            for ev in events[:15]:
-                print(f"  {ev.start:%d.%m. %H:%M}  {ev.channel:<22} {ev.title}")
-            football = [e for e in events if parse_football(e.title)]
-            print(f"Fudbalskih utakmica (A - B): {len(football)}")
-        if args.list:
-            selected = select_matches(events, cfg)
-            _print_list(selected)
-            if cfg.get("allowed_channels"):
-                have = {norm(m["title"]) for m in selected}
-                others = [m for m in select_matches(events, dict(cfg, allowed_channels=[]))
-                          if norm(m["title"]) not in have]
-                if others:
-                    print("\nProlaze filtere, ali samo na kanalima koji nisu u allowed_channels:")
-                    _print_list(others)
+    if args.probe:
+        print(probe(cfg, now.date()))
+        return 0
+
+    if args.debug_parse:
+        events, err = fetch_tv_events(cfg, now.date(), fetch_fn, print)
+        for ev in events[:15]:
+            print(f"  {ev.start:%d.%m. %H:%M}  {ev.channel:<22} {ev.title}")
+        print(f"Fudbalskih termina na tvojim kanalima: {len(tv_football(events, cfg))}")
+        return 0
+
+    if args.list:
+        fixtures, failed = get_fixtures(cfg, now.date())
+        for name, err in failed.items():
+            print(f"Izvor nije dostupan: {name}: {err}")
+        events, _ = fetch_tv_events(cfg, now.date(), fetch_fn, print)
+        _print_list(build_matches(fixtures, events, cfg, now.date()))
         return 0
 
     return run(cfg, now=now, fetch_fn=fetch_fn, dry_run=args.dry_run, force_refresh=args.refresh)
