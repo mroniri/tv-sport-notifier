@@ -2,7 +2,7 @@
   "alerts": {
     "partial": "2026-11-19"
   },
-  "date": "2026-11-21",
+  "date": "2026-11-22",
   "events": [
     {
       "away": "Novi Pazar",
@@ -11,14 +11,14 @@
       ],
       "competition": "Mozzart Bet Superliga",
       "home": "OFK Beograd",
-      "id": "52aa976fd652",
+      "id": "267a3e0b32a2",
       "reasons": [
         "Međusobni meč: Crvena zvezda / Partizan / Vojvodina"
       ],
-      "start": "2026-11-21T17:00:00+01:00"
+      "start": "2026-11-22T17:00:00+01:00"
     }
   ],
-  "fetched_at": "2026-11-21T19:57:40.070670+01:00",
+  "fetched_at": "2026-11-22T00:20:04.082539+01:00",
   "notified": {
     "52aa976fd652": "2026-11-21T17:00:00+01:00",
     "bbc13fcb0211": "2026-11-20T15:30:00+01:00"
