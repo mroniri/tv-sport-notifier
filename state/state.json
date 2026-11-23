@@ -2,23 +2,23 @@
   "alerts": {
     "partial": "2026-11-19"
   },
-  "date": "2026-11-22",
+  "date": "2026-11-23",
   "events": [
     {
-      "away": "Manchester United",
+      "away": "Novi Pazar",
       "channels": [
-        "Arena sport Premium 1"
+        "Arena sport 10"
       ],
-      "competition": "Premijer liga",
-      "home": "Liverpool",
-      "id": "2fd38655c481",
+      "competition": "Mozzart Bet Superliga",
+      "home": "OFK Beograd",
+      "id": "58fb832b1dec",
       "reasons": [
-        "Derbi (Engleska)"
+        "Međusobni meč: Crvena zvezda / Partizan / Vojvodina"
       ],
-      "start": "2026-11-22T17:30:00+01:00"
+      "start": "2026-11-23T16:00:00+01:00"
     }
   ],
-  "fetched_at": "2026-11-22T19:58:30.354820+01:00",
+  "fetched_at": "2026-11-23T06:08:16.157217+01:00",
   "notified": {
     "2fd38655c481": "2026-11-22T17:30:00+01:00",
     "52aa976fd652": "2026-11-21T17:00:00+01:00"
