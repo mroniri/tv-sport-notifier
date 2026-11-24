@@ -5,20 +5,124 @@
   "date": "2026-11-24",
   "events": [
     {
-      "away": "Novi Pazar",
+      "away": "LASK",
       "channels": [
-        "Arena sport 10"
+        "Arena sport Premium 3"
       ],
-      "competition": "Mozzart Bet Superliga",
-      "home": "OFK Beograd",
-      "id": "d94abc49c324",
+      "competition": "Liga šampiona",
+      "home": "Bodo/Glimt",
+      "id": "db0b2cf47bd0",
       "reasons": [
-        "Međusobni meč: Crvena zvezda / Partizan / Vojvodina"
+        "Liga šampiona"
       ],
-      "start": "2026-11-24T16:00:00+01:00"
+      "start": "2026-11-24T18:45:00+01:00"
+    },
+    {
+      "away": "Aston Villa",
+      "channels": [
+        "Arena sport Premium 2"
+      ],
+      "competition": "Liga šampiona",
+      "home": "Galatasaray",
+      "id": "001464960779",
+      "reasons": [
+        "Liga šampiona"
+      ],
+      "start": "2026-11-24T18:45:00+01:00"
+    },
+    {
+      "away": "PSV",
+      "channels": [
+        "Arena sport 1"
+      ],
+      "competition": "Liga šampiona",
+      "home": "Real Madrid",
+      "id": "7cf1331f6e41",
+      "reasons": [
+        "Liga šampiona"
+      ],
+      "start": "2026-11-24T21:00:00+01:00"
+    },
+    {
+      "away": "Napoli",
+      "channels": [
+        "Arena sport Premium 3"
+      ],
+      "competition": "Liga šampiona",
+      "home": "Manchester City",
+      "id": "de55dd547efb",
+      "reasons": [
+        "Liga šampiona"
+      ],
+      "start": "2026-11-24T21:00:00+01:00"
+    },
+    {
+      "away": "Borussia Dortmund",
+      "channels": [
+        "Arena sport Premium 2"
+      ],
+      "competition": "Liga šampiona",
+      "home": "Arsenal",
+      "id": "b9c213bcb2ac",
+      "reasons": [
+        "Liga šampiona"
+      ],
+      "start": "2026-11-24T21:00:00+01:00"
+    },
+    {
+      "away": "Porto",
+      "channels": [
+        "Arena sport 2"
+      ],
+      "competition": "Liga šampiona",
+      "home": "Feyenoord",
+      "id": "67061967199e",
+      "reasons": [
+        "Liga šampiona"
+      ],
+      "start": "2026-11-24T21:00:00+01:00"
+    },
+    {
+      "away": "Lens",
+      "channels": [
+        "Arena sport 5"
+      ],
+      "competition": "Liga šampiona",
+      "home": "Leipzig",
+      "id": "fe4e671008df",
+      "reasons": [
+        "Liga šampiona"
+      ],
+      "start": "2026-11-24T21:00:00+01:00"
+    },
+    {
+      "away": "Betis",
+      "channels": [
+        "Arena sport 4"
+      ],
+      "competition": "Liga šampiona",
+      "home": "Slovan",
+      "id": "f040c21899ee",
+      "reasons": [
+        "Liga šampiona"
+      ],
+      "start": "2026-11-24T21:00:00+01:00"
+    },
+    {
+      "away": "AEK",
+      "channels": [
+        "Arena sport 3"
+      ],
+      "competition": "Liga šampiona",
+      "home": "Como",
+      "id": "d11a10bc3221",
+      "reasons": [
+        "Liga šampiona"
+      ],
+      "start": "2026-11-24T21:00:00+01:00"
     }
   ],
-  "fetched_at": "2026-11-24T00:20:33.598182+01:00",
+  "fetched_at": "2026-11-24T06:56:42.264104+01:00",
   "notified": {
     "2fd38655c481": "2026-11-22T17:30:00+01:00",
     "58fb832b1dec": "2026-11-23T16:00:00+01:00"
