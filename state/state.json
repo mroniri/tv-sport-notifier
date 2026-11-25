@@ -2,127 +2,102 @@
   "alerts": {
     "partial": "2026-11-19"
   },
-  "date": "2026-11-24",
+  "date": "2026-11-25",
   "events": [
     {
-      "away": "LASK",
+      "away": "Villarreal",
       "channels": [
         "Arena sport Premium 3"
       ],
       "competition": "Liga šampiona",
-      "home": "Bodo/Glimt",
-      "id": "db0b2cf47bd0",
+      "home": "Slavia",
+      "id": "41585e268b70",
       "reasons": [
         "Liga šampiona"
       ],
-      "start": "2026-11-24T18:45:00+01:00"
+      "start": "2026-11-25T18:45:00+01:00"
     },
     {
-      "away": "Aston Villa",
+      "away": "Barcelona",
       "channels": [
         "Arena sport Premium 2"
       ],
       "competition": "Liga šampiona",
-      "home": "Galatasaray",
-      "id": "001464960779",
+      "home": "Sabah",
+      "id": "8e0b8bb2bace",
       "reasons": [
         "Liga šampiona"
       ],
-      "start": "2026-11-24T18:45:00+01:00"
+      "start": "2026-11-25T18:45:00+01:00"
     },
     {
-      "away": "PSV",
+      "away": "Roma",
+      "channels": [
+        "RTS 2",
+        "Arena sport Premium 2"
+      ],
+      "competition": "Liga šampiona",
+      "home": "PSŽ",
+      "id": "bb2d6473bd8d",
+      "reasons": [
+        "Liga šampiona"
+      ],
+      "start": "2026-11-25T21:00:00+01:00"
+    },
+    {
+      "away": "Stuttgart",
       "channels": [
         "Arena sport 1"
       ],
       "competition": "Liga šampiona",
-      "home": "Real Madrid",
-      "id": "7cf1331f6e41",
+      "home": "Inter",
+      "id": "157d02ed9910",
       "reasons": [
         "Liga šampiona"
       ],
-      "start": "2026-11-24T21:00:00+01:00"
+      "start": "2026-11-25T21:00:00+01:00"
     },
     {
-      "away": "Napoli",
-      "channels": [
-        "Arena sport Premium 3"
-      ],
-      "competition": "Liga šampiona",
-      "home": "Manchester City",
-      "id": "de55dd547efb",
-      "reasons": [
-        "Liga šampiona"
-      ],
-      "start": "2026-11-24T21:00:00+01:00"
-    },
-    {
-      "away": "Borussia Dortmund",
-      "channels": [
-        "Arena sport Premium 2"
-      ],
-      "competition": "Liga šampiona",
-      "home": "Arsenal",
-      "id": "b9c213bcb2ac",
-      "reasons": [
-        "Liga šampiona"
-      ],
-      "start": "2026-11-24T21:00:00+01:00"
-    },
-    {
-      "away": "Porto",
+      "away": "Viking",
       "channels": [
         "Arena sport 2"
       ],
       "competition": "Liga šampiona",
-      "home": "Feyenoord",
-      "id": "67061967199e",
+      "home": "Atletico Madrid",
+      "id": "569f77275494",
       "reasons": [
         "Liga šampiona"
       ],
-      "start": "2026-11-24T21:00:00+01:00"
+      "start": "2026-11-25T21:00:00+01:00"
     },
     {
-      "away": "Lens",
+      "away": "Liverpool",
       "channels": [
-        "Arena sport 5"
+        "Arena sport Premium 3"
       ],
       "competition": "Liga šampiona",
-      "home": "Leipzig",
-      "id": "fe4e671008df",
+      "home": "Club Brugge",
+      "id": "89cfd5dd5709",
       "reasons": [
         "Liga šampiona"
       ],
-      "start": "2026-11-24T21:00:00+01:00"
+      "start": "2026-11-25T21:00:00+01:00"
     },
     {
-      "away": "Betis",
-      "channels": [
-        "Arena sport 4"
-      ],
-      "competition": "Liga šampiona",
-      "home": "Slovan",
-      "id": "f040c21899ee",
-      "reasons": [
-        "Liga šampiona"
-      ],
-      "start": "2026-11-24T21:00:00+01:00"
-    },
-    {
-      "away": "AEK",
+      "away": "Fenerbahce",
       "channels": [
         "Arena sport 3"
       ],
       "competition": "Liga šampiona",
-      "home": "Como",
-      "id": "d11a10bc3221",
+      "home": "Shakhtar",
+      "id": "dfcaa2df22ac",
       "reasons": [
         "Liga šampiona"
       ],
-      "start": "2026-11-24T21:00:00+01:00"
+      "start": "2026-11-25T21:00:00+01:00"
     }
   ],
-  "fetched_at": "2026-11-24T20:45:27.398887+01:00",
+  "fetched_at": "2026-11-25T05:59:05.093959+01:00",
   "notified": {
     "001464960779": "2026-11-24T18:45:00+01:00",
     "58fb832b1dec": "2026-11-23T16:00:00+01:00",
