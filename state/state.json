@@ -3,10 +3,127 @@
     "partial": "2026-11-19"
   },
   "date": "2026-11-26",
-  "events": [],
-  "fetched_at": "2026-11-26T14:03:52.485337+01:00",
+  "events": [
+    {
+      "away": "Milan",
+      "channels": [
+        "Arena sport Premium 2"
+      ],
+      "competition": "Liga Evrope",
+      "home": "Olympiacos",
+      "id": "586158e45b37",
+      "reasons": [
+        "Liga Evrope"
+      ],
+      "start": "2026-11-26T18:45:00+01:00"
+    },
+    {
+      "away": "Bayer Leverkusen",
+      "channels": [
+        "Arena sport 4"
+      ],
+      "competition": "Liga Evrope",
+      "home": "Dinamo",
+      "id": "50096de85b80",
+      "reasons": [
+        "Liga Evrope"
+      ],
+      "start": "2026-11-26T18:45:00+01:00"
+    },
+    {
+      "away": "Bournemouth",
+      "channels": [
+        "Arena sport Premium 3"
+      ],
+      "competition": "Liga Evrope",
+      "home": "Celta",
+      "id": "f36f851ffca7",
+      "reasons": [
+        "Liga Evrope"
+      ],
+      "start": "2026-11-26T18:45:00+01:00"
+    },
+    {
+      "away": "Hapoel Beer-Sheva",
+      "channels": [
+        "Arena sport 1"
+      ],
+      "competition": "Liga Evrope",
+      "home": "Besiktas",
+      "id": "8a85271b073d",
+      "reasons": [
+        "Liga Evrope"
+      ],
+      "start": "2026-11-26T18:45:00+01:00"
+    },
+    {
+      "away": "Omonia",
+      "channels": [
+        "Arena sport Premium 2"
+      ],
+      "competition": "Liga Evrope",
+      "home": "Juventus",
+      "id": "bb4351399918",
+      "reasons": [
+        "Liga Evrope"
+      ],
+      "start": "2026-11-26T21:00:00+01:00"
+    },
+    {
+      "away": "Celje",
+      "channels": [
+        "Arena sport 5"
+      ],
+      "competition": "Liga Evrope",
+      "home": "Ferencvaros",
+      "id": "679a8a6c1e1c",
+      "reasons": [
+        "Liga Evrope"
+      ],
+      "start": "2026-11-26T21:00:00+01:00"
+    },
+    {
+      "away": "Jagiellonia",
+      "channels": [
+        "Arena sport 1"
+      ],
+      "competition": "Liga Evrope",
+      "home": "Sunderland",
+      "id": "9062e3bbd0f9",
+      "reasons": [
+        "Liga Evrope"
+      ],
+      "start": "2026-11-26T21:00:00+01:00"
+    },
+    {
+      "away": "Celtic",
+      "channels": [
+        "Arena sport 4"
+      ],
+      "competition": "Liga Evrope",
+      "home": "Torrense",
+      "id": "d2c2e68ea5b7",
+      "reasons": [
+        "Liga Evrope"
+      ],
+      "start": "2026-11-26T21:00:00+01:00"
+    },
+    {
+      "away": "Rennes",
+      "channels": [
+        "Arena sport 3"
+      ],
+      "competition": "Liga Evrope",
+      "home": "NEC",
+      "id": "abd18d238e08",
+      "reasons": [
+        "Liga Evrope"
+      ],
+      "start": "2026-11-26T21:00:00+01:00"
+    }
+  ],
+  "fetched_at": "2026-11-26T19:22:36.232272+01:00",
   "notified": {
-    "001464960779": "2026-11-24T18:45:00+01:00",
     "157d02ed9910": "2026-11-25T21:00:00+01:00",
     "41585e268b70": "2026-11-25T18:45:00+01:00",
     "569f77275494": "2026-11-25T21:00:00+01:00",
@@ -17,7 +134,6 @@
     "b9c213bcb2ac": "2026-11-24T21:00:00+01:00",
     "bb2d6473bd8d": "2026-11-25T21:00:00+01:00",
     "d11a10bc3221": "2026-11-24T21:00:00+01:00",
-    "db0b2cf47bd0": "2026-11-24T18:45:00+01:00",
     "de55dd547efb": "2026-11-24T21:00:00+01:00",
     "dfcaa2df22ac": "2026-11-25T21:00:00+01:00",
     "f040c21899ee": "2026-11-24T21:00:00+01:00",
