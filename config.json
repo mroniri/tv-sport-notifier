@@ -203,11 +203,21 @@
       ]
     },
     {
+      "name": "Liga Evrope",
+      "kind": "all",
+      "sources": [
+        "uefa:14",
+        "espn:uefa.europa"
+      ],
+      "tv_keywords": [
+        "liga evrope"
+      ]
+    },
+    {
       "name": "Liga nacija",
       "kind": "all",
       "sources": [
-        "espn:uefa.nations",
-        "uefa:14"
+        "espn:uefa.nations"
       ],
       "tv_keywords": [
         "liga nacija"
