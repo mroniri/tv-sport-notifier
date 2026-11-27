@@ -446,8 +446,13 @@ def http_json(url: str, retries: int = 3):
             if "uefa.com" in url:
                 headers.update({"Origin": "https://www.uefa.com", "Referer": "https://www.uefa.com/"})
             req = urllib.request.Request(url, headers=headers)
-            with urllib.request.urlopen(req, timeout=30) as resp:
+            with urllib.request.urlopen(req, timeout=15) as resp:
                 return json.loads(resp.read().decode("utf-8"))
+        except urllib.error.HTTPError as exc:
+            last = exc
+            if 400 <= exc.code < 500 and exc.code != 429:
+                break  # ponavljanje ne pomaže (npr. 400/403/404)
+            time_mod.sleep(2 * (attempt + 1))
         except (urllib.error.URLError, TimeoutError, OSError, ValueError) as exc:
             last = exc
             time_mod.sleep(2 * (attempt + 1))

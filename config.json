@@ -221,7 +221,8 @@
       ],
       "tv_keywords": [
         "liga nacija"
-      ]
+      ],
+      "optional": true
     },
     {
       "name": "Svetsko prvenstvo",
@@ -231,7 +232,8 @@
       ],
       "tv_keywords": [
         "svetsko prvenstvo"
-      ]
+      ],
+      "optional": true
     },
     {
       "name": "Evropsko prvenstvo",
@@ -241,7 +243,8 @@
       ],
       "tv_keywords": [
         "evropsko prvenstvo"
-      ]
+      ],
+      "optional": true
     },
     {
       "name": "Kvalifikacije za SP",
@@ -252,7 +255,8 @@
       "tv_keywords": [
         "kvalifikacije",
         "svetsko"
-      ]
+      ],
+      "optional": true
     },
     {
       "name": "Kvalifikacije za EP",
@@ -263,7 +267,8 @@
       "tv_keywords": [
         "kvalifikacije",
         "evropsko"
-      ]
+      ],
+      "optional": true
     },
     {
       "name": "Prijateljska (Srbija)",
@@ -273,7 +278,8 @@
       ],
       "tv_keywords": [
         "prijatelj"
-      ]
+      ],
+      "optional": true
     },
     {
       "name": "Premijer liga",
