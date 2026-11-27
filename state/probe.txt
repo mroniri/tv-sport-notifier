@@ -1,24 +1,16 @@
-Provera izvora, 26.11.2026 19:22, dani 2026-11-26 - 2026-12-02
+Provera izvora, 27.11.2026 14:11, dani 2026-11-27 - 2026-12-03
 
 [OK] Liga šampiona <- uefa:1: 0 utakmica
 [OK] Liga šampiona <- espn:uefa.champions: 0 utakmica
-[OK] Liga Evrope <- uefa:14: 18 utakmica
-      Thu 26.11. 18:45  Olympiacos - Milan
-      Thu 26.11. 18:45  Marseille - Levski Sofia
-      Thu 26.11. 18:45  Viktoria Plzeň - Benfica
-      Thu 26.11. 18:45  Union SG - Lech Poznań
-[OK] Liga Evrope <- espn:uefa.europa: 18 utakmica
-      Thu 26.11. 18:45  Besiktas - Hapoel Be'er
-      Thu 26.11. 18:45  Celta Vigo - AFC Bournemouth
-      Thu 26.11. 18:45  Dinamo Zagreb - Bayer Leverkusen
-      Thu 26.11. 18:45  Marseille - Levski Sofia
+[OK] Liga Evrope <- uefa:14: 0 utakmica
+[OK] Liga Evrope <- espn:uefa.europa: 0 utakmica
 [OK] Liga nacija <- espn:uefa.nations: 0 utakmica
 [OK] Svetsko prvenstvo <- espn:fifa.world: 0 utakmica
 [OK] Evropsko prvenstvo <- espn:uefa.euro: 0 utakmica
 [OK] Kvalifikacije za SP <- espn:fifa.worldq.uefa: 0 utakmica
 [OK] Kvalifikacije za EP <- espn:uefa.euroq: 0 utakmica
 [OK] Prijateljska (Srbija) <- espn:fifa.friendly: 0 utakmica
-[OK] Premijer liga <- espn:eng.1: 19 utakmica
+[OK] Premijer liga <- espn:eng.1: 20 utakmica
       tabela (prva 4): Arsenal, Brighton & Hove Albion, Manchester City, Liverpool
       Fri 27.11. 21:00  Nottingham Forest - Chelsea
       Sat 28.11. 16:00  Leeds United - Coventry City
