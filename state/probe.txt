@@ -1,4 +1,4 @@
-Provera izvora, 27.11.2026 14:11, dani 2026-11-27 - 2026-12-03
+Provera izvora, 27.11.2026 14:13, dani 2026-11-27 - 2026-12-03
 
 [OK] Liga šampiona <- uefa:1: 0 utakmica
 [OK] Liga šampiona <- espn:uefa.champions: 0 utakmica
